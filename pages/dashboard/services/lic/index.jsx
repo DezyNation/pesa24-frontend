@@ -143,7 +143,7 @@ const Lic = () => {
       Toast({
         status: 'error',
         title: "Error while paying bill",
-        description: err?.response?.data?.message || err?.response?.data || err?.message || "Server busy"
+        description: err?.response?.data?.message || (err?.response?.data?.length ? err?.response?.data[0] : err?.response?.data) || err?.message || "Server busy"
       })
     })
   }
