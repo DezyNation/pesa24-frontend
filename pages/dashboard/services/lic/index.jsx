@@ -120,7 +120,7 @@ const Lic = () => {
       Toast({
         status: 'error',
         title: "Error while fetching dtails",
-        description: err.response.data.message || err.response.data || err.message
+        description: err?.response?.data?.message || err?.response?.data || err?.message
       })
     })
   }
@@ -142,8 +142,8 @@ const Lic = () => {
     }).catch(err => {
       Toast({
         status: 'error',
-        title: "Error while fetching dtails",
-        description: err.response.data.message || err.response.data || err.message
+        title: "Error while paying bill",
+        description: err?.response?.data?.message || err?.response?.data || err?.message
       })
     })
   }
