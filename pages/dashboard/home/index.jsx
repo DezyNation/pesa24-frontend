@@ -211,7 +211,7 @@ const Index = () => {
               gap={[4, 8]}
               flexWrap={"wrap"}
             >
-              <Box
+              {/* <Box
                 w={["27.5%", "20%"]}
                 p={4}
                 _hover={{ bgColor: "rgba(0,0,0,0.2)" }}
@@ -237,7 +237,7 @@ const Index = () => {
                     AePS
                   </Text>
                 </Link>
-              </Box>
+              </Box> */}
 
               <Box
                 w={["27.5%", "20%"]}
@@ -666,7 +666,7 @@ const Index = () => {
             Your Transaction Reports
           </Text>
           <HStack>
-            <VStack
+            {/* <VStack
               flex={1}
               p={2}
               rounded={8}
@@ -686,7 +686,7 @@ const Index = () => {
                   View
                 </Button>
               </Link>
-            </VStack>
+            </VStack> */}
             <VStack
               flex={1}
               p={2}
