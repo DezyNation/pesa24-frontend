@@ -195,12 +195,12 @@ export const SidebarOptions =
           id: "rechargeReport",
           soon: false,
         },
-        {
-          title: 'DMT reports',
-          link: '/dashboard/reports/dmt?pageId=reports',
-          id: "dmtReport",
-          soon: false,
-        },
+        // {
+        //   title: 'DMT reports',
+        //   link: '/dashboard/reports/dmt?pageId=reports',
+        //   id: "dmtReport",
+        //   soon: false,
+        // },
         {
           title: 'Payout reports',
           link: '/dashboard/reports/payout?pageId=reports',
