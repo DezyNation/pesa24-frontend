@@ -50,6 +50,7 @@ const Dmt = () => {
   useEffect(() => {
     setIsLoading(true);
     setIsBtnLoading(true);
+    window.location.assign("/dashboard/not-allowed");
     ClientAxios.post(
       "/api/user/fetch",
       {
