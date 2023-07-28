@@ -157,7 +157,7 @@ const Index = () => {
   function fetchTransactions(pageLink) {
     BackendAxios.get(
       pageLink ||
-        `/api/user/ledger?from=${
+        `/api/user/ledger/all?from=${
           Formik.values.from + (Formik.values.from && "T+00:00")
         }&to=${Formik.values.to + (Formik.values.to && "T+23:59")}&page=1`
     )
