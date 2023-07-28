@@ -157,7 +157,9 @@ const Index = () => {
   function fetchTransactions(pageLink) {
     BackendAxios.get(
       pageLink ||
-        `/api/user/ledger?from=${Formik.values.from}&to=${Formik.values.to}&page=1`
+        `/api/user/ledger?from=${
+          Formik.values.from + (Formik.values.from && "T+00:00")
+        }&to=${Formik.values.to + (Formik.values.to && "T+23:59")}&page=1`
     )
       .then((res) => {
         setPagination({
