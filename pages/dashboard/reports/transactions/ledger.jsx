@@ -14,7 +14,6 @@ import {
   ModalHeader,
   ModalFooter,
   VStack,
-  VisuallyHidden,
   Stack,
   FormControl,
   FormLabel,
