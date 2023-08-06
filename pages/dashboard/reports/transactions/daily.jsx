@@ -43,13 +43,6 @@ import Pdf from "react-to-pdf";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { toBlob } from "html-to-image";
-import { TableContainer } from "@chakra-ui/react";
-import { Table } from "@chakra-ui/react";
-import { Thead } from "@chakra-ui/react";
-import { Tr } from "@chakra-ui/react";
-import { Th } from "@chakra-ui/react";
-import { Tbody } from "@chakra-ui/react";
-import { Td } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useFormik } from "formik";
 
