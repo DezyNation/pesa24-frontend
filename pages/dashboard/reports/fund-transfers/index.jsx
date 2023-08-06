@@ -19,6 +19,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Select,
+  Spacer,
 } from "@chakra-ui/react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -32,6 +34,7 @@ import {
   BsDownload,
   BsXCircle,
   BsEye,
+  BsClockHistory,
 } from "react-icons/bs";
 import BackendAxios from "../../../../lib/axios";
 import Pdf from "react-to-pdf";
@@ -40,11 +43,9 @@ import "jspdf-autotable";
 import { toBlob } from "html-to-image";
 import { useFormik } from "formik";
 import Cookies from "js-cookie";
-import { SiMicrosoftexcel } from "react-icons/si";
 import { DownloadTableExcel } from "react-export-table-to-excel";
+import { SiMicrosoftexcel } from "react-icons/si";
 import { FiRefreshCcw } from "react-icons/fi";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import PdfDocument from "../../../../lib/utils/pdfExport/PdfDocument";
 import fileDownload from "js-file-download";
 
 const ExportPDF = () => {
@@ -55,13 +56,13 @@ const ExportPDF = () => {
 };
 
 const Index = () => {
+  const transactionKeyword = "fund-transfer";
   const Toast = useToast({
     position: "top-right",
   });
-  const [printableRow, setPrintableRow] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [printableRow, setPrintableRow] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: "1",
     total_pages: "1",
@@ -104,51 +105,29 @@ const Index = () => {
       filter: false,
     },
     {
-      headerName: "Description",
-      field: "transaction_for",
-      width: 150,
-    },
-    {
-      headerName: "Trnxn Type",
+      headerName: "Transaction Type",
       field: "service_type",
-      width: 100,
-    },
-    {
-      headerName: "Trnxn Status",
-      field: "metadata",
-      cellRenderer: "statusCellRenderer",
-      width: 100,
+      hide: true,
     },
     {
       headerName: "Created At",
       field: "created_at",
-      width: 150,
+      width: 200,
+      filter: false,
     },
     {
       headerName: "Updated At",
       field: "updated_at",
-      width: 150,
-    },
-    {
-      headerName: "Narration",
-      field: "metadata",
-      cellRenderer: "narrationCellRenderer",
       width: 200,
+      filter: false,
     },
     {
-      headerName: "Additional Info",
-      field: "metadata",
-      hide: true,
-    },
-    {
-      headerName: "Receipt",
-      field: "receipt",
-      pinned: "right",
-      cellRenderer: "receiptCellRenderer",
-      width: 80,
-      hide: true,
-    },
+      headerName: "Remarks",
+      field: "transaction_for",
+      width: 300,
+    }
   ]);
+  const [overviewData, setOverviewData] = useState([]);
 
   const handleShare = async () => {
     const myFile = await toBlob(pdfRef.current, { quality: 0.95 });
@@ -177,6 +156,7 @@ const Index = () => {
       from: "",
       to: "",
       search: "",
+      status: "all",
     },
   });
 
@@ -190,10 +170,10 @@ const Index = () => {
     setReportLoading(true);
     BackendAxios.get(
       `/api/user/print-reports?from=${
-        Formik.values.from + (Formik.values.from && "T00:00")
-      }&to=${Formik.values.to + (Formik.values.to && "T23:59")}&search=${
+        Formik.values.from + (Formik.values.from && "T" + "00:00")
+      }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}&search=${
         Formik.values.search
-      }&type=ledger&doctype=${doctype}&name=all`,
+      }&type=ledger&name=${transactionKeyword}&doctype=${doctype}`,
       {
         responseType: "blob",
       }
@@ -201,9 +181,9 @@ const Index = () => {
       .then((res) => {
         setReportLoading(false);
         if (doctype == "excel") {
-          fileDownload(res.data, "TransactionLedger.xlsx");
+          fileDownload(res.data, "WalletTransfer.xlsx");
         } else {
-          fileDownload(res.data, "TransactionLedger.pdf");
+          fileDownload(res.data, "WalletTransfer.pdf");
         }
       })
       .catch((err) => {
@@ -226,9 +206,9 @@ const Index = () => {
     setLoading(true);
     BackendAxios.get(
       pageLink ||
-        `/api/user/ledger/all?from=${
-          Formik.values.from + (Formik.values.from && "T00:00")
-        }&to=${Formik.values.to + (Formik.values.to && "T23:59")}&search=${
+        `/api/user/ledger/${transactionKeyword}?from=${
+          Formik.values.from + (Formik.values.from && "T" + "00:00")
+        }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}&search=${
           Formik.values.search
         }&page=1`
     )
@@ -242,8 +222,6 @@ const Index = () => {
           prev_page_url: res.data.prev_page_url,
         });
         setRowData(res.data.data);
-        // setPrintableRow(res.data.data);
-        // setRowData(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -290,7 +268,7 @@ const Index = () => {
       <HStack height={"full"} w={"full"} gap={4}>
         <Button
           rounded={"full"}
-          colorScheme="twitter"
+          colorScheme="orange"
           size={"xs"}
           onClick={() => showReceipt()}
         >
@@ -334,7 +312,7 @@ const Index = () => {
       <>
         {receipt.status == "processed" ? (
           <Text color={"green"} textTransform={"uppercase"} fontWeight={"bold"}>
-            success
+            SUCCESS
           </Text>
         ) : receipt?.status == true ||
           receipt.status == "processing" ||
@@ -351,71 +329,21 @@ const Index = () => {
     );
   };
 
-  const narrationCellRenderer = (params) => {
-    const receipt = JSON.parse(params?.data?.metadata || {});
-    return (
-      <>
-        <Text fontWeight={"bold"}>{receipt?.remarks}</Text>
-      </>
-    );
-  };
-
-  const eventCellRenderer = (params) => {
-    const receipt = JSON.parse(params?.data?.metadata || {});
-    return (
-      <>
-        <Text fontWeight={"bold"} textTransform={"uppercase"}>
-          {receipt?.event}
-        </Text>
-      </>
-    );
-  };
-
   const tableRef = React.useRef(null);
-
-  function handleDownloadExcel() {
-    downloadExcel({
-      fileName: `TransactionsLedger`,
-      sheet: "transactions",
-      tablePayload: {
-        header: columnDefs
-          .filter((column) => {
-            if (
-              column.headerName != "Additional Info" &&
-              column.headerName != "Receipt"
-            ) {
-              return column;
-            }
-          })
-          .map((column, key) => {
-            return <th key={key}>{column.headerName}</th>;
-          }),
-        body: rowData.map((data) => [
-          data.transaction_id,
-          data.debit_amount,
-          data.credit_amount,
-          data.opening_balance,
-          data.closing_balance,
-          data.transaction_for,
-          data.service_type,
-          JSON.parse(data.metadata).status,
-          data.created_at,
-          data.updated_at,
-          JSON.parse(data.metadata)?.remarks,
-        ]),
-      },
-    });
-  }
-
   return (
     <>
-      <DashboardWrapper pageTitle={"Transaction Ledger"}>
+      <DashboardWrapper pageTitle={"Wallet Transfer Reports"}>
         <HStack pb={8}>
-          {/* <Button onClick={ExportPDF} colorScheme={"red"} size={"sm"}>
+          <Button
+            onClick={() => generateReport("pdf")}
+            colorScheme={"red"}
+            size={"sm"}
+            isLoading={reportLoading}
+          >
             Export PDF
-          </Button> */}
+          </Button>
           {/* <DownloadTableExcel
-            filename="Ledger"
+            filename="PayoutReports"
             sheet="sheet1"
             currentTableRef={tableRef.current}
           >
@@ -427,28 +355,6 @@ const Index = () => {
               Excel
             </Button>
           </DownloadTableExcel> */}
-          {/* {isClient ? (
-            <PDFDownloadLink
-              document={
-                <PdfDocument rowData={rowData} columnDefs={columnDefs} />
-              }
-              fileName={`TransactionsLedger.pdf`}
-            >
-              {({ blob, url, loading, error }) => (
-                <Button colorScheme={"red"} size={"sm"}>
-                  {loading ? "Generating PDF..." : "Download PDF"}
-                </Button>
-              )}
-            </PDFDownloadLink>
-          ) : null} */}
-          <Button
-            colorScheme={"red"}
-            size={"sm"}
-            onClick={() => generateReport("pdf")}
-            isLoading={reportLoading}
-          >
-            PDF
-          </Button>
           <Button
             size={["xs", "sm"]}
             colorScheme={"whatsapp"}
@@ -459,7 +365,9 @@ const Index = () => {
             Excel
           </Button>
         </HStack>
-        
+        <Box p={2} bg={"orange.500"} roundedTop={16}>
+          <Text color={"#FFF"}>Search Transactions</Text>
+        </Box>
         <Stack p={4} spacing={8} w={"full"} direction={["column", "row"]}>
           <FormControl w={["full", "xs"]}>
             <FormLabel>From Date</FormLabel>
@@ -480,16 +388,21 @@ const Index = () => {
             />
           </FormControl>
           <FormControl w={["full", "xs"]}>
-            <FormLabel>Ref ID or Acc No</FormLabel>
-            <Input name="search" onChange={Formik.handleChange} bg={"white"} />
+            <FormLabel>User ID or Name</FormLabel>
+            <Input
+              name="search"
+              onChange={Formik.handleChange}
+              bg={"white"}
+            />
           </FormControl>
         </Stack>
         <HStack mb={4} justifyContent={"flex-end"}>
-          <Button onClick={() => fetchTransactions()} colorScheme={"twitter"}>
+          <Button onClick={() => fetchTransactions()} colorScheme={"orange"}>
             Search
           </Button>
         </HStack>
 
+        
         <HStack
           spacing={2}
           p={4}
@@ -571,13 +484,12 @@ const Index = () => {
                 resizable: true,
                 sortable: true,
               }}
+              pagination={true}
+              paginationPageSize={100}
               components={{
-                receiptCellRenderer: receiptCellRenderer,
                 creditCellRenderer: creditCellRenderer,
                 debitCellRenderer: debitCellRenderer,
                 statusCellRenderer: statusCellRenderer,
-                narrationCellRenderer: narrationCellRenderer,
-                // eventCellRenderer: eventCellRenderer
               }}
               onFilterChanged={(params) => {
                 setPrintableRow(
@@ -604,9 +516,19 @@ const Index = () => {
               <VStack
                 w={"full"}
                 p={8}
-                bg={receipt.status ? "green.500" : "red.500"}
+                bg={
+                  receipt?.status?.toLowerCase() == "processed" ||
+                  receipt?.status == true ||
+                  receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "queued"
+                    ? "green.500"
+                    : "red.500"
+                }
               >
-                {receipt.status ? (
+                {receipt?.status?.toLowerCase() == "processed" ||
+                receipt?.status == true ||
+                receipt?.status?.toLowerCase() == "processing" ||
+                receipt?.status?.toLowerCase() == "queued" ? (
                   <BsCheck2Circle color="#FFF" fontSize={72} />
                 ) : (
                   <BsXCircle color="#FFF" fontSize={72} />
@@ -619,7 +541,14 @@ const Index = () => {
                   fontSize={"sm"}
                   textTransform={"uppercase"}
                 >
-                  TRANSACTION {receipt.status ? "success" : "failed"}
+                  TRANSACTION{" "}
+                  {receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "queued"
+                    ? "PROCESSING"
+                    : receipt?.status?.toLowerCase() == "processed" ||
+                      receipt?.status == true
+                    ? "SUCCESSFUL"
+                    : "FAILED"}
                 </Text>
               </VStack>
             </ModalHeader>
@@ -659,6 +588,12 @@ const Index = () => {
                         );
                     })
                   : null}
+                {/* <VStack pt={8} spacing={0} w={"full"}>
+                  <Image src="/logo_long.png" w={"20"} pt={4} />
+                  <Text fontSize={"xs"}>
+                    {process.env.NEXT_PUBLIC_ORGANISATION_NAME}
+                  </Text>
+                </VStack> */}
               </VStack>
             </ModalBody>
           </Box>
@@ -677,7 +612,7 @@ const Index = () => {
                   <Button
                     rounded={"full"}
                     size={"sm"}
-                    colorScheme={"twitter"}
+                    colorScheme={"orange"}
                     leftIcon={<BsDownload />}
                     onClick={toPdf}
                   >
@@ -690,7 +625,7 @@ const Index = () => {
         </ModalContent>
       </Modal>
 
-      {/* <VisuallyHidden>
+      <VisuallyHidden>
         <table id="printable-table" ref={tableRef}>
           <thead>
             <tr>
@@ -698,8 +633,9 @@ const Index = () => {
               {columnDefs
                 .filter((column) => {
                   if (
-                    column.headerName != "Additional Info" &&
-                    column.headerName != "Receipt"
+                    column.field != "metadata" &&
+                    column.field != "name" &&
+                    column.field != "receipt"
                   ) {
                     return column;
                   }
@@ -719,20 +655,39 @@ const Index = () => {
                   <td>{data.credit_amount}</td>
                   <td>{data.opening_balance}</td>
                   <td>{data.closing_balance}</td>
-                  <td>{data.transaction_for}</td>
                   <td>{data.service_type}</td>
-                  <td>
-                    {JSON.parse(data.metadata).status ? "SUCCESS" : "FAILED"}
-                  </td>
                   <td>{data.created_at}</td>
                   <td>{data.updated_at}</td>
-                  <td>{JSON.parse(data.metadata)?.remarks}</td>
+                  <td>{data.transaction_for}</td>
                 </tr>
               );
             })}
+            <tr></tr>
+            <tr>
+              <td>
+                <b>Payouts</b>
+              </td>
+              <td>
+                {Math.abs(
+                  overviewData[4]?.payout?.debit -
+                    overviewData[4]?.payout?.credit
+                ).toFixed(2) || 0}
+              </td>
+              <td>
+                <b>Charges</b>
+              </td>
+              <td>
+                {Math.abs(
+                  overviewData[7]?.["payout-commission"]?.credit +
+                    overviewData[10]?.["payout-charge"]?.credit -
+                    (overviewData[7]?.["payout-commission"]?.debit +
+                      overviewData[10]?.["payout-charge"]?.debit)
+                ).toFixed(2) || 0}
+              </td>
+            </tr>
           </tbody>
         </table>
-      </VisuallyHidden> */}
+      </VisuallyHidden>
     </>
   );
 };

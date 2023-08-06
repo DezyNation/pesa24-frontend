@@ -14,15 +14,29 @@ import {
     useToast,
     PinInput,
     PinInputField,
-
 } from '@chakra-ui/react'
 import Navbar from '../../../hocs/Navbar'
 import { useFormik } from 'formik'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import Cookies from 'js-cookie'
+import { useEffect } from 'react'
+var bcrypt = require('bcryptjs')
 
 const ResetPassword = () => {
     const toast = useToast()
+    const Router = useRouter()
 
+    useEffect(() => {
+        if (!Cookies.get("verified")) {
+          return;
+        }
+        if (Cookies.get("verified")) {
+          setTimeout(() => {
+            Router.push("/dashboard/home?pageId=home");
+          }, 500);
+        }
+      }, []);
 
     const formik = useFormik({
         initialValues: {
@@ -31,10 +45,10 @@ const ResetPassword = () => {
         },
         onSubmit: (values) => {
             // Handling registration API
-            axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/forgot-password`, JSON.stringify({
+            axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/forgot-password`, {
                 email: values.email,
                 mpin: values.mpin,
-            })).then((res) => {
+            }).then((res) => {
                 toast({
                     position: 'top-right',
                     status: "success",

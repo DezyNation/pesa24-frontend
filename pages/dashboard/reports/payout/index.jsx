@@ -19,6 +19,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Select,
+  Spacer,
 } from "@chakra-ui/react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -32,14 +34,19 @@ import {
   BsDownload,
   BsXCircle,
   BsEye,
-  BsClockHistory
-} from 'react-icons/bs'
-import BackendAxios from '../../../../lib/axios';
-import Pdf from 'react-to-pdf'
-import jsPDF from 'jspdf';
-import 'jspdf-autotable'
-import { toBlob } from 'html-to-image'
-import { useFormik } from 'formik';
+  BsClockHistory,
+} from "react-icons/bs";
+import BackendAxios from "../../../../lib/axios";
+import Pdf from "react-to-pdf";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { toBlob } from "html-to-image";
+import { useFormik } from "formik";
+import Cookies from "js-cookie";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import { SiMicrosoftexcel } from "react-icons/si";
+import { FiRefreshCcw } from "react-icons/fi";
+import fileDownload from "js-file-download";
 
 const ExportPDF = () => {
   const doc = new jsPDF("landscape");
@@ -53,6 +60,8 @@ const Index = () => {
   const Toast = useToast({
     position: "top-right",
   });
+  const [loading, setLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
   const [printableRow, setPrintableRow] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: "1",
@@ -74,22 +83,26 @@ const Index = () => {
       field: "debit_amount",
       cellRenderer: "debitCellRenderer",
       width: 150,
+      filter: false,
     },
     {
       headerName: "Credit",
       field: "credit_amount",
       cellRenderer: "creditCellRenderer",
       width: 150,
+      filter: false,
     },
     {
       headerName: "Opening Balance",
       field: "opening_balance",
       width: 150,
+      filter: false,
     },
     {
       headerName: "Closing Balance",
       field: "closing_balance",
       width: 150,
+      filter: false,
     },
     {
       headerName: "Transaction Type",
@@ -98,7 +111,7 @@ const Index = () => {
     },
     {
       headerName: "Status",
-      field: "status",
+      field: "metadata",
       cellRenderer: "statusCellRenderer",
       width: 100,
     },
@@ -125,6 +138,7 @@ const Index = () => {
       width: 80,
     },
   ]);
+  const [overviewData, setOverviewData] = useState([]);
 
   const handleShare = async () => {
     const myFile = await toBlob(pdfRef.current, { quality: 0.95 });
@@ -152,27 +166,41 @@ const Index = () => {
     initialValues: {
       from: "",
       to: "",
+      search: "",
+      status: "all",
     },
   });
 
-  function fetchTransactions(pageLink) {
+  function generateReport(doctype) {
+    if (!Formik.values.from || !Formik.values.to) {
+      Toast({
+        description: "Please select dates to generate report",
+      });
+      return;
+    }
+    setReportLoading(true);
     BackendAxios.get(
-      pageLink ||
-        `/api/user/ledger/${transactionKeyword}?from=${Formik.values.from}&to=${Formik.values.to}&page=1`
+      `/api/user/print-reports?from=${
+        Formik.values.from + (Formik.values.from && "T" + "00:00")
+      }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}&search=${
+        Formik.values.search
+      }&status=${
+        Formik.values.status != "all" ? Formik.values.status : ""
+      }&type=ledger&name=${transactionKeyword}&doctype=${doctype}`,
+      {
+        responseType: "blob",
+      }
     )
       .then((res) => {
-        setPagination({
-          current_page: res.data.current_page,
-          total_pages: parseInt(res.data.last_page),
-          first_page_url: res.data.first_page_url,
-          last_page_url: res.data.last_page_url,
-          next_page_url: res.data.next_page_url,
-          prev_page_url: res.data.prev_page_url,
-        });
-        setRowData(res.data.data);
-        setPrintableRow(res.data.data);
+        setReportLoading(false);
+        if (doctype == "excel") {
+          fileDownload(res.data, "Payouts.xlsx");
+        } else {
+          fileDownload(res.data, "Payouts.pdf");
+        }
       })
       .catch((err) => {
+        setReportLoading(false);
         if (err?.response?.status == 401) {
           Cookies.remove("verified");
           window.location.reload();
@@ -184,6 +212,72 @@ const Index = () => {
           description:
             err.response.data.message || err.response.data || err.message,
         });
+      });
+  }
+
+  function fetchTransactions(pageLink) {
+    setLoading(true);
+    BackendAxios.get(
+      pageLink ||
+        `/api/user/ledger/${transactionKeyword}?from=${
+          Formik.values.from + (Formik.values.from && "T" + "00:00")
+        }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}&search=${
+          Formik.values.search || Formik.values.status != "all"
+            ? Formik.values.status
+            : ""
+        }&status=${
+          Formik.values.status != "all" ? Formik.values.status : ""
+        }&page=1`
+    )
+      .then((res) => {
+        setPagination({
+          current_page: res.data.current_page,
+          total_pages: parseInt(res.data.last_page),
+          first_page_url: res.data.first_page_url,
+          last_page_url: res.data.last_page_url,
+          next_page_url: res.data.next_page_url,
+          prev_page_url: res.data.prev_page_url,
+        });
+        setRowData(res.data.data);
+        setLoading(false);
+        // setRowData(res.data);
+        fetchOverview();
+      })
+      .catch((err) => {
+        setLoading(false);
+        if (err?.response?.status == 401) {
+          Cookies.remove("verified");
+          window.location.reload();
+          return;
+        }
+        console.log(err);
+        Toast({
+          status: "error",
+          description:
+            err.response.data.message || err.response.data || err.message,
+        });
+      });
+  }
+
+  function fetchOverview() {
+    setLoading(true);
+    BackendAxios.get(
+      `/api/user/overview?from=${
+        Formik.values.from + (Formik.values.from && "T" + "00:00")
+      }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}`
+    )
+      .then((res) => {
+        setLoading(false);
+        setOverviewData(res.data);
+      })
+      .catch((err) => {
+        setLoading(false);
+        if (err?.response?.status == 401) {
+          Cookies.remove("verified");
+          window.location.reload();
+          return;
+        }
+        console.log(err);
       });
   }
 
@@ -247,32 +341,64 @@ const Index = () => {
   };
 
   const statusCellRenderer = (params) => {
+    const receipt = JSON.parse(params.data.metadata);
     return (
       <>
-        {JSON.parse(params.data.metadata).status ? (
-          <Text color={"green"} fontWeight={"bold"}>
+        {receipt.status == "processed" ? (
+          <Text color={"green"} textTransform={"uppercase"} fontWeight={"bold"}>
             SUCCESS
           </Text>
+        ) : receipt?.status == true ||
+          receipt.status == "processing" ||
+          receipt.status == "queued" ? (
+          <Text color={"green"} textTransform={"uppercase"} fontWeight={"bold"}>
+            {receipt.status}
+          </Text>
         ) : (
-          <Text color={"red"} fontWeight={"bold"}>
-            FAILED
+          <Text color={"red"} textTransform={"uppercase"} fontWeight={"bold"}>
+            {receipt.status}
           </Text>
         )}
       </>
     );
   };
 
+  const tableRef = React.useRef(null);
   return (
     <>
       <DashboardWrapper pageTitle={"Payout Reports"}>
         <HStack pb={8}>
-          <Button onClick={ExportPDF} colorScheme={"red"} size={"sm"}>
+          <Button
+            onClick={() => generateReport("pdf")}
+            colorScheme={"red"}
+            size={"sm"}
+            isLoading={reportLoading}
+          >
             Export PDF
           </Button>
+          {/* <DownloadTableExcel
+            filename="PayoutReports"
+            sheet="sheet1"
+            currentTableRef={tableRef.current}
+          >
+            <Button
+              size={["xs", "sm"]}
+              colorScheme={"whatsapp"}
+              leftIcon={<SiMicrosoftexcel />}
+            >
+              Excel
+            </Button>
+          </DownloadTableExcel> */}
+          <Button
+            size={["xs", "sm"]}
+            colorScheme={"whatsapp"}
+            leftIcon={<SiMicrosoftexcel />}
+            onClick={() => generateReport("excel")}
+            isLoading={reportLoading}
+          >
+            Excel
+          </Button>
         </HStack>
-        <Box p={2} bg={"twitter.500"} roundedTop={16}>
-          <Text color={"#FFF"}>Search Transactions</Text>
-        </Box>
         <Stack p={4} spacing={8} w={"full"} direction={["column", "row"]}>
           <FormControl w={["full", "xs"]}>
             <FormLabel>From Date</FormLabel>
@@ -292,57 +418,139 @@ const Index = () => {
               bg={"white"}
             />
           </FormControl>
+          <FormControl w={["full", "xs"]}>
+            <FormLabel>Ref. ID or Acc. No.</FormLabel>
+            <Input
+              name="search"
+              onChange={Formik.handleChange}
+              bg={"white"}
+              // isDisabled={Formik.values.status != "all"}
+            />
+          </FormControl>
+          <FormControl w={["full", "xs"]}>
+            <FormLabel>Status</FormLabel>
+            <Select
+              name="status"
+              onChange={Formik.handleChange}
+              bgColor={"#FFF"}
+            >
+              <option value="all">All</option>
+              <option value="processed">Processed</option>
+              <option value="failed">Failed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="reversed">Reversed</option>
+            </Select>
+          </FormControl>
         </Stack>
         <HStack mb={4} justifyContent={"flex-end"}>
           <Button onClick={() => fetchTransactions()} colorScheme={"twitter"}>
             Search
           </Button>
         </HStack>
+
+        <HStack
+          mt={8}
+          mb={4}
+          p={4}
+          rounded={2}
+          bgColor={"#FFF"}
+          boxShadow={"sm"}
+          w={"full"}
+        >
+          <Text fontSize={"lg"} fontWeight={"semibold"}>
+            Total
+          </Text>
+          <Spacer />
+          <HStack gap={8}>
+            <Box>
+              <Text fontSize={"10"}>Payouts</Text>
+              <Text fontSize={"md"} fontWeight={"semibold"}>
+                ₹{" "}
+                {Math.abs(
+                  overviewData[4]?.payout?.debit -
+                    overviewData[4]?.payout?.credit
+                ).toFixed(2) || 0}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontSize={"10"}>Charges</Text>
+              <Text fontSize={"md"} fontWeight={"semibold"}>
+                ₹{" "}
+                {Math.abs(
+                  overviewData[11]?.["payout-commission"]?.credit +
+                    overviewData[10]?.["payout-charge"]?.credit -
+                    (overviewData[11]?.["payout-commission"]?.debit +
+                      overviewData[10]?.["payout-charge"]?.debit)
+                )?.toFixed(2) || 0}
+              </Text>
+            </Box>
+          </HStack>
+        </HStack>
+
         <HStack
           spacing={2}
           py={4}
           mt={24}
           bg={"white"}
-          justifyContent={"center"}
+          justifyContent={"space-between"}
         >
+          <HStack spacing={2}>
+            <Button
+              colorScheme={"orange"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.first_page_url)}
+            >
+              <BsChevronDoubleLeft />
+            </Button>
+            <Button
+              colorScheme={"orange"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.prev_page_url)}
+            >
+              <BsChevronLeft />
+            </Button>
+            <Button
+              colorScheme={"orange"}
+              fontSize={12}
+              size={"xs"}
+              variant={"solid"}
+            >
+              {pagination.current_page}
+            </Button>
+            <Button
+              colorScheme={"orange"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.next_page_url)}
+            >
+              <BsChevronRight />
+            </Button>
+            <Button
+              colorScheme={"orange"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.last_page_url)}
+            >
+              <BsChevronDoubleRight />
+            </Button>
+          </HStack>
           <Button
-            colorScheme={'twitter'}
-            fontSize={12} size={'xs'}
-            variant={'outline'}
-            onClick={() => fetchTransactions(pagination.first_page_url)}
+            colorScheme="blue"
+            isLoading={loading}
+            variant={"ghost"}
+            onClick={() => fetchTransactions()}
+            leftIcon={<FiRefreshCcw />}
           >
-            <BsChevronDoubleLeft />
-          </Button>
-          <Button
-            colorScheme={'twitter'}
-            fontSize={12} size={'xs'}
-            variant={'outline'}
-            onClick={() => fetchTransactions(pagination.prev_page_url)}
-          >
-            <BsChevronLeft />
-          </Button>
-          <Button
-            colorScheme={'twitter'}
-            fontSize={12} size={'xs'}
-            variant={'solid'}
-          >{pagination.current_page}</Button>
-          <Button
-            colorScheme={'twitter'}
-            fontSize={12} size={'xs'}
-            variant={'outline'}
-            onClick={() => fetchTransactions(pagination.next_page_url)}
-          >
-            <BsChevronRight />
-          </Button>
-          <Button
-            colorScheme={'twitter'}
-            fontSize={12} size={'xs'}
-            variant={'outline'}
-            onClick={() => fetchTransactions(pagination.last_page_url)}
-          >
-            <BsChevronDoubleRight />
+            Click To Reload Data
           </Button>
         </HStack>
+
         <Box py={6}>
           <Box
             className="ag-theme-alpine ag-theme-pesa24-blue"
@@ -392,17 +600,21 @@ const Index = () => {
                 w={"full"}
                 p={8}
                 bg={
-                  receipt.status == "processed" || receipt?.status == true
+                  receipt?.status?.toLowerCase() == "processed" ||
+                  receipt?.status == true ||
+                  receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "success" ||
+                  receipt?.status?.toLowerCase() == "queued"
                     ? "green.500"
-                    : receipt.status == "processing" || receipt.status == "queued"
-                    ? "twitter.500"
                     : "red.500"
                 }
               >
-                {receipt.status == "processed" || receipt.status == true ? (
+                {receipt?.status?.toLowerCase() == "processed" ||
+                receipt?.status == true ||
+                receipt?.status?.toLowerCase() == "success" ||
+                receipt?.status?.toLowerCase() == "processing" ||
+                receipt?.status?.toLowerCase() == "queued" ? (
                   <BsCheck2Circle color="#FFF" fontSize={72} />
-                ) : receipt.status == "processing" || receipt.status == "queued" ? (
-                  <BsClockHistory color="#FFF" fontSize={72} />
                 ) : (
                   <BsXCircle color="#FFF" fontSize={72} />
                 )}
@@ -414,7 +626,15 @@ const Index = () => {
                   fontSize={"sm"}
                   textTransform={"uppercase"}
                 >
-                  TRANSACTION {receipt.status == true ? "PROCESSED" : receipt?.status == false ? "FAILED": receipt.status}
+                  TRANSACTION{" "}
+                  {receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "queued"
+                    ? "PROCESSING"
+                    : receipt?.status?.toLowerCase() == "processed" ||
+                      receipt?.status == true ||
+                      receipt?.status?.toLowerCase() == "success"
+                    ? "SUCCESSFUL"
+                    : "FAILED"}
                 </Text>
               </VStack>
             </ModalHeader>
@@ -454,12 +674,12 @@ const Index = () => {
                         );
                     })
                   : null}
-                <VStack pt={8} spacing={0} w={"full"}>
+                {/* <VStack pt={8} spacing={0} w={"full"}>
                   <Image src="/logo_long.png" w={"20"} pt={4} />
                   <Text fontSize={"xs"}>
                     {process.env.NEXT_PUBLIC_ORGANISATION_NAME}
                   </Text>
-                </VStack>
+                </VStack> */}
               </VStack>
             </ModalBody>
           </Box>
@@ -492,7 +712,7 @@ const Index = () => {
       </Modal>
 
       <VisuallyHidden>
-        <table id="printable-table">
+        <table id="printable-table" ref={tableRef}>
           <thead>
             <tr>
               <th>#</th>
@@ -528,6 +748,29 @@ const Index = () => {
                 </tr>
               );
             })}
+            <tr></tr>
+            <tr>
+              <td>
+                <b>Payouts</b>
+              </td>
+              <td>
+                {Math.abs(
+                  overviewData[4]?.payout?.debit -
+                    overviewData[4]?.payout?.credit
+                ).toFixed(2) || 0}
+              </td>
+              <td>
+                <b>Charges</b>
+              </td>
+              <td>
+                {Math.abs(
+                  overviewData[7]?.["payout-commission"]?.credit +
+                    overviewData[10]?.["payout-charge"]?.credit -
+                    (overviewData[7]?.["payout-commission"]?.debit +
+                      overviewData[10]?.["payout-charge"]?.debit)
+                ).toFixed(2) || 0}
+              </td>
+            </tr>
           </tbody>
         </table>
       </VisuallyHidden>

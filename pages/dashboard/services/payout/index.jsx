@@ -35,14 +35,27 @@ import {
 import { useFormik } from "formik";
 import BackendAxios, { ClientAxios } from "../../../../lib/axios";
 import Pdf from "react-to-pdf";
-import { BsCheck2Circle, BsClockHistory, BsDownload, BsXCircle } from "react-icons/bs";
+import {
+  BsCheck2Circle,
+  BsClockHistory,
+  BsDownload,
+  BsXCircle,
+} from "react-icons/bs";
 import Cookies from "js-cookie";
+import { FiRefreshCcw } from "react-icons/fi";
+import { RadioGroup } from "@chakra-ui/react";
+import { Radio } from "@chakra-ui/react";
+import axios from "axios";
 
 const Payout = () => {
   const [serviceId, setServiceId] = useState("25");
   const { isOpen, onClose, onOpen } = useDisclosure();
   const Toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [btnLoading, setBtnLoading] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState(true);
+
+  const [otpModal, setOtpModal] = useState(false);
 
   const handleShare = async () => {
     const myFile = await toBlob(pdfRef.current, { quality: 0.95 });
@@ -67,16 +80,21 @@ const Payout = () => {
   };
 
   useEffect(() => {
-    ClientAxios.get(`/api/organisation`)
+    fetchServiceStatus();
+  }, []);
+
+  async function fetchServiceStatus() {
+    await ClientAxios.get(`/api/organisation`)
       .then((res) => {
-        if (!res.data.payout_status) {
-          window.location.href("/dashboard/not-available");
-        }
+        // if (!res.data.payout_status) {
+        //   window.location.href("/dashboard/not-available");
+        // }
+        setServiceStatus(res.data.payout_status);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }
 
   const Formik = useFormik({
     initialValues: {
@@ -85,6 +103,9 @@ const Payout = () => {
       ifsc: "",
       amount: "",
       mpin: "",
+      otp: "",
+      bankName: "",
+      mode: "IMPS",
     },
   });
 
@@ -94,9 +115,58 @@ const Payout = () => {
     status: "success",
     data: {},
   });
-  function makePayout() {
+
+  function fetchBankDetails() {
+    axios.get(`https://ifsc.razorpay.com/${Formik.values.ifsc}`).then(res=>{
+      Formik.setFieldValue("bankName", res.data['BANK'])
+    }).catch(err=>{
+      Toast({
+        status: 'error',
+        title: "Error while fetching bank details",
+        description: err?.response?.data?.message || err?.response?.data || err?.message
+      })
+    })
+  }
+
+  async function triggerOtp() {
     setIsLoading(true);
-    BackendAxios.post(
+    await BackendAxios.post(`/api/send-otp/payout`)
+      .then((res) => {
+        setIsLoading(false);
+        Toast({
+          position: "top-right",
+          description: "OTP sent to senior",
+        });
+        setOtpModal(true);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        if (err?.response?.status == 401) {
+          Cookies.remove("verified");
+          window.location.reload();
+          return;
+        }
+        Toast({
+          status: "error",
+          title: "Transaction Failed",
+          description:
+            err.response.data.message || err.response.data || err.message,
+          position: "top-right",
+        });
+      });
+  }
+
+  async function makePayout() {
+    setIsLoading(true);
+    await fetchServiceStatus();
+    if (!serviceStatus) {
+      Toast({
+        status: "warning",
+        description: "Service unavailable!",
+      });
+      return;
+    }
+    await BackendAxios.post(
       `/api/razorpay/payout/new-payout/${serviceId}`,
       JSON.stringify({
         beneficiaryName: Formik.values.beneficiaryName,
@@ -104,6 +174,9 @@ const Payout = () => {
         ifsc: Formik.values.ifsc,
         mpin: Formik.values.mpin,
         amount: Formik.values.amount,
+        otp: Formik.values.otp,
+        mode: Formik.values.mode,
+        bankName: Formik.values.bankName,
       })
     )
       .then((res) => {
@@ -131,6 +204,7 @@ const Payout = () => {
           position: "top-right",
         });
         setIsLoading(false);
+        onClose();
       });
   }
 
@@ -159,11 +233,14 @@ const Payout = () => {
   }, []);
 
   function fetchPayouts() {
+    setBtnLoading(true);
     BackendAxios.get(`/api/razorpay/fetch-payout/${serviceId}`)
       .then((res) => {
+        setBtnLoading(false);
         setRowdata(res.data);
       })
       .catch((err) => {
+        setBtnLoading(false);
         console.log(err);
       });
   }
@@ -221,6 +298,26 @@ const Payout = () => {
                 />
               </FormControl>
               <FormControl>
+                <HStack w={'full'} justifyContent={'space-between'}>
+                  <FormLabel>Bank Name (optional)</FormLabel>
+                  <Text
+                    fontSize={"xs"}
+                    color={"twitter.500"}
+                    fontWeight={"semibold"}
+                    onClick={fetchBankDetails}
+                  >
+                    Fetch Automatically
+                  </Text>
+                </HStack>
+                <Input
+                  name={"bankName"}
+                  onChange={Formik.handleChange}
+                  placeholder={"Enter Bank Name"}
+                  value={Formik.values.bankName}
+                  isDisabled={isLoading}
+                />
+              </FormControl>
+              <FormControl>
                 <FormLabel>Enter Amount</FormLabel>
                 <InputGroup>
                   <InputLeftAddon children={"₹"} />
@@ -232,7 +329,30 @@ const Payout = () => {
                   />
                 </InputGroup>
               </FormControl>
-              <Button colorScheme={"twitter"} onClick={onOpen}>
+              <FormControl>
+                <FormLabel>Transaction Mode</FormLabel>
+                <RadioGroup
+                  name="mode"
+                  w={"full"}
+                  display={'flex'}
+                  flexDir={"row"}
+                  alignItems={"center"}
+                  justifyContent={"flex-start"}
+                  gap={8}
+                  onChange={Formik.handleChange}
+                  defaultValue={"IMPS"}
+                >
+                  <Radio value="IMPS">IMPS</Radio>
+                  <Radio value="NEFT">NEFT</Radio>
+                </RadioGroup>
+              </FormControl>
+              <Button
+                colorScheme={"orange"}
+                onClick={() => {
+                  if (Number(Formik.values.amount) >= 149999) triggerOtp();
+                  else onOpen();
+                }}
+              >
                 Done
               </Button>
             </Stack>
@@ -246,7 +366,19 @@ const Payout = () => {
             w={["full", "lg"]}
             h={"auto"}
           >
-            <Text>Recent Payouts</Text>
+            <HStack pb={4} w={"full"} justifyContent={"space-between"}>
+              <Text>Recent Payouts</Text>
+              <Button
+                colorScheme="blue"
+                variant={"ghost"}
+                onClick={() => fetchPayouts()}
+                leftIcon={<FiRefreshCcw />}
+                isLoading={btnLoading}
+                size={"sm"}
+              >
+                Click To Reload Data
+              </Button>
+            </HStack>
             <TableContainer h={"full"}>
               <Table>
                 <Thead>
@@ -289,14 +421,17 @@ const Payout = () => {
                         <Td>{item.amount || "0"}</Td>
                         <Td>{item.created_at || "Non-Format"}</Td>
                         <Td>
-                          {item.status == "processing" ||
-                          item.status == "processed" ? (
-                            <Text color={"green"}>Success</Text>
-                          ) : (
-                            <Text textTransform={"capitalize"}>
-                              {item.status}
-                            </Text>
-                          )}
+                          {
+                            // <Text color={"green"}>PROCESSING</Text> :
+                            item.status == "processing" ||
+                            item.status == "processed" ? (
+                              <Text color={"green"}>SUCCESS</Text>
+                            ) : (
+                              <Text textTransform={"capitalize"}>
+                                {item.status}
+                              </Text>
+                            )
+                          }
                         </Td>
                       </Tr>
                     );
@@ -361,6 +496,60 @@ const Payout = () => {
         </ModalContent>
       </Modal>
 
+      {/* OTP Confirmation Modal */}
+      <Modal isOpen={otpModal} onClose={() => setOtpModal(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Enter OTP Sent To Senior</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody
+            as={"flex"}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"flex-start"}
+            textAlign={"center"}
+          >
+            This transaction requires senior authorisation. Please enter the OTP
+            to continue.
+            <br />
+            <br />
+            <HStack
+              w={"full"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              pt={2}
+              pb={6}
+            >
+              <PinInput
+                otp
+                onComplete={(value) => Formik.setFieldValue("otp", value)}
+              >
+                <PinInputField bg={"aqua"} />
+                <PinInputField bg={"aqua"} />
+                <PinInputField bg={"aqua"} />
+                <PinInputField bg={"aqua"} />
+              </PinInput>
+            </HStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              isLoading={isLoading}
+              onClick={() => {
+                onOpen();
+                setOtpModal(false);
+              }}
+            >
+              Confirm
+            </Button>
+            <Button variant="ghost" onClick={() => triggerOtp()}>
+              Resend OTP
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       <Modal
         isOpen={receipt.show}
         onClose={() => setReceipt({ ...receipt, show: false })}
@@ -373,17 +562,21 @@ const Payout = () => {
                 w={"full"}
                 p={8}
                 bg={
-                  receipt.status == "processed" || receipt?.status == true
+                  receipt?.status?.toLowerCase() == "processed" ||
+                  receipt?.status?.toLowerCase() == "success" ||
+                  receipt?.status == true ||
+                  receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "queued"
                     ? "green.500"
-                    : receipt.status == "processing" || receipt.status == "queued"
-                    ? "twitter.500"
                     : "red.500"
                 }
               >
-                {receipt.status == "processed" || receipt.status == true ? (
+                {receipt?.status?.toLowerCase() == "processed" ||
+                receipt?.status == true ||
+                receipt?.status?.toLowerCase() == "success" ||
+                receipt?.status?.toLowerCase() == "processing" ||
+                receipt?.status?.toLowerCase() == "queued" ? (
                   <BsCheck2Circle color="#FFF" fontSize={72} />
-                ) : receipt.status == "processing" || receipt.status == "queued" ? (
-                  <BsClockHistory color="#FFF" fontSize={72} />
                 ) : (
                   <BsXCircle color="#FFF" fontSize={72} />
                 )}
@@ -395,7 +588,14 @@ const Payout = () => {
                   fontSize={"sm"}
                   textTransform={"uppercase"}
                 >
-                  TRANSACTION {receipt.status == true ? "PROCESSED" : receipt?.status == false ? "FAILED": receipt.status}
+                  TRANSACTION{" "}
+                  {receipt?.status?.toLowerCase() == "processing" ||
+                  receipt?.status?.toLowerCase() == "queued" ||
+                  receipt?.status?.toLowerCase() == "processed" ||
+                  receipt?.status?.toLowerCase() == "success" ||
+                  receipt?.status == true
+                    ? "SUCCESSFUL"
+                    : "FAILED"}
                 </Text>
               </VStack>
             </ModalHeader>
@@ -435,12 +635,12 @@ const Payout = () => {
                         );
                     })
                   : null}
-                <VStack pt={8} spacing={0} w={"full"}>
+                {/* <VStack pt={8} spacing={0} w={"full"}>
                   <Image src="/logo_long.png" w={"20"} pt={4} />
                   <Text fontSize={"xs"}>
                     {process.env.NEXT_PUBLIC_ORGANISATION_NAME}
                   </Text>
-                </VStack>
+                </VStack> */}
               </VStack>
             </ModalBody>
           </Box>

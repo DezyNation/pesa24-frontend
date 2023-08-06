@@ -45,6 +45,7 @@ import { AiFillFire } from "react-icons/ai";
 import { GiMoneyStack, GiRotaryPhone } from "react-icons/gi";
 import { GoMortarBoard } from "react-icons/go";
 import { FiMonitor } from "react-icons/fi";
+import Cookies from "js-cookie";
 
 const Index = () => {
   const Toast = useToast({ position: "top-right" });
@@ -666,7 +667,7 @@ const Index = () => {
             Your Transaction Reports
           </Text>
           <HStack>
-            {/* <VStack
+            <VStack
               flex={1}
               p={2}
               rounded={8}
@@ -686,7 +687,7 @@ const Index = () => {
                   View
                 </Button>
               </Link>
-            </VStack> */}
+            </VStack>
             <VStack
               flex={1}
               p={2}
@@ -709,7 +710,7 @@ const Index = () => {
                 </Button>
               </Link>
             </VStack>
-            {/* <VStack
+            <VStack
               flex={1}
               p={2}
               rounded={8}
@@ -730,7 +731,7 @@ const Index = () => {
                   View
                 </Button>
               </Link>
-            </VStack> */}
+            </VStack>
           </HStack>
           <HStack pt={8}>
             <VStack

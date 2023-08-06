@@ -37,12 +37,21 @@ import {
   BsDownload,
   BsXCircle,
   BsEye,
-} from 'react-icons/bs'
-import BackendAxios from '../../../../lib/axios';
-import Pdf from 'react-to-pdf'
-import jsPDF from 'jspdf';
-import 'jspdf-autotable'
-import { toBlob } from 'html-to-image'
+} from "react-icons/bs";
+import BackendAxios from "../../../../lib/axios";
+import Pdf from "react-to-pdf";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { toBlob } from "html-to-image";
+import { TableContainer } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react";
+import { Thead } from "@chakra-ui/react";
+import { Tr } from "@chakra-ui/react";
+import { Th } from "@chakra-ui/react";
+import { Tbody } from "@chakra-ui/react";
+import { Td } from "@chakra-ui/react";
+import Cookies from "js-cookie";
+import { useFormik } from "formik";
 
 const ExportPDF = () => {
   const doc = new jsPDF("landscape");
@@ -132,6 +141,12 @@ const Index = () => {
   const [overviewData, setOverviewData] = useState([]);
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
+  const Formik = useFormik({
+    initialValues: {
+      from: "",
+      to: "",
+    },
+  });
 
   const handleShare = async () => {
     const myFile = await toBlob(pdfRef.current, { quality: 0.95 });
@@ -157,47 +172,57 @@ const Index = () => {
 
   function fetchSum() {
     // Fetch transactions overview
-    BackendAxios.get(`/api/user/overview?from=${from}&to=${to}`)
+    BackendAxios.get(
+      `/api/user/overview?from=${
+        Formik.values.from + (Formik.values.from && "T" + "00:00")
+      }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}`
+    )
       .then((res) => {
         setOverviewData(res.data);
       })
       .catch((err) => {
         console.log(err);
-      });
-  }
-
-  function fetchTransactions(pageLink) {
-    BackendAxios.get(pageLink || `/api/user/daily-sales?page=1`)
-      .then((res) => {
-        setPagination({
-          current_page: res.data.current_page,
-          total_pages: parseInt(res.data.last_page),
-          first_page_url: res.data.first_page_url,
-          last_page_url: res.data.last_page_url,
-          next_page_url: res.data.next_page_url,
-          prev_page_url: res.data.prev_page_url,
-        });
-        setPrintableRow(res?.data?.data);
-        setRowData(res?.data?.data);
-        fetchSum();
-      })
-      .catch((err) => {
         if (err?.response?.status == 401) {
           Cookies.remove("verified");
           window.location.reload();
           return;
         }
-        console.log(err);
-        Toast({
-          status: "error",
-          description:
-            err.response.data.message || err.response.data || err.message,
-        });
       });
   }
 
+  // function fetchTransactions(pageLink) {
+  //   BackendAxios.get(pageLink || `/api/user/daily-sales?page=1`)
+  //     .then((res) => {
+  //       setPagination({
+  //         current_page: res.data.current_page,
+  //         total_pages: parseInt(res.data.last_page),
+  //         first_page_url: res.data.first_page_url,
+  //         last_page_url: res.data.last_page_url,
+  //         next_page_url: res.data.next_page_url,
+  //         prev_page_url: res.data.prev_page_url,
+  //       });
+  //       setPrintableRow(res?.data?.data);
+  //       setRowData(res?.data?.data);
+  //       fetchSum();
+  //     })
+  //     .catch((err) => {
+  //       if (err?.response?.status == 401) {
+  //         Cookies.remove("verified");
+  //         window.location.reload();
+  //         return;
+  //       }
+  //       console.log(err);
+  //       Toast({
+  //         status: "error",
+  //         description:
+  //           err.response.data.message || err.response.data || err.message,
+  //       });
+  //     });
+  // }
+
   useEffect(() => {
-    fetchTransactions();
+    // fetchTransactions();
+    fetchSum();
   }, []);
 
   const pdfRef = React.createRef();
@@ -292,7 +317,7 @@ const Index = () => {
               type="date"
               bgColor={"#FFF"}
               name="from"
-              onChange={(e) => setFrom(e.target.value)}
+              onChange={Formik.handleChange}
             />
           </FormControl>
           <FormControl w={["full", "xs"]}>
@@ -301,14 +326,19 @@ const Index = () => {
               type="date"
               bgColor={"#FFF"}
               name="to"
-              onChange={(e) => setTo(e.target.value)}
+              onChange={Formik.handleChange}
             />
           </FormControl>
         </HStack>
-        <HStack justifyContent={'flex-end'}>
-          <Button colorScheme='twitter' onClick={()=>{
-            fetchTransactions(`/api/user/daily-sales?page=1&from=${from}&to=${to}`)
-          }}>Search</Button>
+        <HStack justifyContent={"flex-end"}>
+          <Button
+            colorScheme="orange"
+            onClick={() => {
+              fetchSum();
+            }}
+          >
+            Search
+          </Button>
         </HStack>
         {/* <HStack spacing={2} py={4} mt={24} bg={'white'} justifyContent={'center'}>
           <Button
@@ -421,12 +451,14 @@ const Index = () => {
                 </Td>
                 <Td>
                   {Math.abs(
-                    overviewData[4]?.["payout-commission"]?.credit -
-                      overviewData[4]?.["payout-commission"]?.debit
-                  ) || 0}
+                    overviewData[11]?.["payout-commission"]?.credit +
+                      overviewData[10]?.["payout-charge"]?.credit -
+                      (overviewData[11]?.["payout-commission"]?.debit +
+                        overviewData[10]?.["payout-charge"]?.debit)
+                  ).toFixed(2) || 0}
                 </Td>
               </Tr>
-              <Tr>
+              {/* <Tr>
                 <Td>
                   <Text
                     textAlign={"right"}
@@ -455,12 +487,14 @@ const Index = () => {
                     fontSize={"lg"}
                   >
                     {Math.abs(
-                      overviewData[4]?.["payout-commission"]?.credit -
-                        overviewData[4]?.["payout-commission"]?.debit
-                    ) || 0}
+                      overviewData[11]?.["payout-commission"]?.credit +
+                        overviewData[10]?.["payout-charge"]?.credit -
+                        (overviewData[11]?.["payout-commission"]?.debit +
+                          overviewData[10]?.["payout-charge"]?.debit)
+                    ).toFixed(2) || 0}
                   </Text>
                 </Td>
-              </Tr>
+              </Tr> */}
             </Tbody>
           </Table>
         </TableContainer>

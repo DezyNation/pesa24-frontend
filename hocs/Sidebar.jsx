@@ -100,12 +100,12 @@ export const SidebarOptions =
         //   id: "dmtTransaction",
         //   soon: false,
         // },
-        {
-          title: 'BBPS services',
-          link: '/dashboard/services/bbps?pageId=services',
-          id: "bbpsTransaction",
-          soon: false,
-        },
+        // {
+        //   title: 'BBPS services',
+        //   link: '/dashboard/services/bbps?pageId=services',
+        //   id: "bbpsTransaction",
+        //   soon: false,
+        // },
         {
           title: 'recharge',
           link: '/dashboard/services/recharge?pageId=services',
@@ -183,12 +183,12 @@ export const SidebarOptions =
         //   id: "aepsReport",
         //   soon: false,
         // },
-        {
-          title: 'BBPS reports',
-          link: '/dashboard/reports/bbps?pageId=reports',
-          id: "bbpsReport",
-          soon: false,
-        },
+        // {
+        //   title: 'BBPS reports',
+        //   link: '/dashboard/reports/bbps?pageId=reports',
+        //   id: "bbpsReport",
+        //   soon: false,
+        // },
         {
           title: 'recharge reports',
           link: '/dashboard/reports/recharge?pageId=reports',
@@ -210,27 +210,39 @@ export const SidebarOptions =
         {
           title: 'fund requests',
           link: '/dashboard/reports/fund-requests?pageId=reports',
-          id: "fundRequests",
+          id: "basicFundRequesReport",
           soon: false,
         },
         {
-          title: 'LIC reports',
-          link: '/dashboard/reports/lic?pageId=reports',
-          id: "licReport",
+          title: 'wallet transfers',
+          link: '/dashboard/reports/fund-transfers?pageId=reports',
+          id: "basicFundRequesReport",
           soon: false,
         },
-        {
-          title: 'PAN reports',
-          link: '/dashboard/reports/pan?pageId=reports',
-          id: "panReport",
-          soon: false,
-        },
-        {
-          title: 'CMS reports',
-          link: '/dashboard/reports/cms?pageId=reports',
-          id: "cmsReport",
-          soon: false,
-        },
+        // {
+        //   title: 'fund transfers',
+        //   link: '/dashboard/reports/fund-transfers?pageId=reports',
+        //   id: "basicFundTransferReport",
+        //   soon: true,
+        // },
+        // {
+        //   title: 'LIC reports',
+        //   link: '/dashboard/reports/lic?pageId=reports',
+        //   id: "licReport",
+        //   soon: false,
+        // },
+        // {
+        //   title: 'PAN reports',
+        //   link: '/dashboard/reports/pan?pageId=reports',
+        //   id: "panReport",
+        //   soon: false,
+        // },
+        // {
+        //   title: 'CMS reports',
+        //   link: '/dashboard/reports/cms?pageId=reports',
+        //   id: "cmsReport",
+        //   soon: false,
+        // },
         // {
         //   title: 'axis accounts',
         //   link: '/dashboard/reports/axis?pageId=reports',
@@ -338,7 +350,7 @@ const Sidebar = ({ userName, userImage }) => {
                 fontSize={"sm"}
                 color={"#FAFAFA"}
                 textTransform={'capitalize'}
-              >{userType.replace("_", " ")}</Text>
+              >{userType?.replace("_", " ")}</Text>
             </VStack>
           </Link>
 
