@@ -88,24 +88,24 @@ export const SidebarOptions =
           id: "aepsTransaction",
           soon: false
         },
-        // {
-        //   title: 'Aadhaar Pay',
-        //   link: '/dashboard/services/aeps/pay?pageId=services',
-        //   id: "aepsAadhaarPay",
-        //   soon: false
-        // },
-        // {
-        //   title: 'DMT services',
-        //   link: '/dashboard/services/dmt?pageId=services',
-        //   id: "dmtTransaction",
-        //   soon: false,
-        // },
-        // {
-        //   title: 'BBPS services',
-        //   link: '/dashboard/services/bbps?pageId=services',
-        //   id: "bbpsTransaction",
-        //   soon: false,
-        // },
+        {
+          title: 'Aadhaar Pay',
+          link: '/dashboard/services/aeps/pay?pageId=services',
+          id: "aepsAadhaarPay",
+          soon: false
+        },
+        {
+          title: 'DMT services',
+          link: '/dashboard/services/dmt?pageId=services',
+          id: "dmtTransaction",
+          soon: false,
+        },
+        {
+          title: 'BBPS services',
+          link: '/dashboard/services/bbps?pageId=services',
+          id: "bbpsTransaction",
+          soon: false,
+        },
         {
           title: 'recharge',
           link: '/dashboard/services/recharge?pageId=services',
@@ -183,24 +183,24 @@ export const SidebarOptions =
           id: "aepsReport",
           soon: false,
         },
-        // {
-        //   title: 'BBPS reports',
-        //   link: '/dashboard/reports/bbps?pageId=reports',
-        //   id: "bbpsReport",
-        //   soon: false,
-        // },
+        {
+          title: 'BBPS reports',
+          link: '/dashboard/reports/bbps?pageId=reports',
+          id: "bbpsReport",
+          soon: false,
+        },
         {
           title: 'recharge reports',
           link: '/dashboard/reports/recharge?pageId=reports',
           id: "rechargeReport",
           soon: false,
         },
-        // {
-        //   title: 'DMT reports',
-        //   link: '/dashboard/reports/dmt?pageId=reports',
-        //   id: "dmtReport",
-        //   soon: false,
-        // },
+        {
+          title: 'DMT reports',
+          link: '/dashboard/reports/dmt?pageId=reports',
+          id: "dmtReport",
+          soon: false,
+        },
         {
           title: 'Payout reports',
           link: '/dashboard/reports/payout?pageId=reports',
@@ -225,24 +225,24 @@ export const SidebarOptions =
         //   id: "basicFundTransferReport",
         //   soon: true,
         // },
-        // {
-        //   title: 'LIC reports',
-        //   link: '/dashboard/reports/lic?pageId=reports',
-        //   id: "licReport",
-        //   soon: false,
-        // },
-        // {
-        //   title: 'PAN reports',
-        //   link: '/dashboard/reports/pan?pageId=reports',
-        //   id: "panReport",
-        //   soon: false,
-        // },
-        // {
-        //   title: 'CMS reports',
-        //   link: '/dashboard/reports/cms?pageId=reports',
-        //   id: "cmsReport",
-        //   soon: false,
-        // },
+        {
+          title: 'LIC reports',
+          link: '/dashboard/reports/lic?pageId=reports',
+          id: "licReport",
+          soon: false,
+        },
+        {
+          title: 'PAN reports',
+          link: '/dashboard/reports/pan?pageId=reports',
+          id: "panReport",
+          soon: false,
+        },
+        {
+          title: 'CMS reports',
+          link: '/dashboard/reports/cms?pageId=reports',
+          id: "cmsReport",
+          soon: false,
+        },
         // {
         //   title: 'axis accounts',
         //   link: '/dashboard/reports/axis?pageId=reports',
