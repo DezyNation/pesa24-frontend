@@ -212,7 +212,7 @@ const Index = () => {
               gap={[4, 8]}
               flexWrap={"wrap"}
             >
-              {/* <Box
+              <Box
                 w={["27.5%", "20%"]}
                 p={4}
                 _hover={{ bgColor: "rgba(0,0,0,0.2)" }}
@@ -238,7 +238,7 @@ const Index = () => {
                     AePS
                   </Text>
                 </Link>
-              </Box> */}
+              </Box>
 
               <Box
                 w={["27.5%", "20%"]}

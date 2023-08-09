@@ -82,12 +82,12 @@ export const SidebarOptions =
           id: "basicServiceActivate",
           soon: false,
         },
-        // {
-        //   title: 'AePS services',
-        //   link: '/dashboard/services/aeps?pageId=services',
-        //   id: "aepsTransaction",
-        //   soon: false
-        // },
+        {
+          title: 'AePS services',
+          link: '/dashboard/services/aeps?pageId=services',
+          id: "aepsTransaction",
+          soon: false
+        },
         // {
         //   title: 'Aadhaar Pay',
         //   link: '/dashboard/services/aeps/pay?pageId=services',
@@ -177,12 +177,12 @@ export const SidebarOptions =
       id: 'reports',
       icon: <BsFileEarmarkBarGraph />,
       children: [
-        // {
-        //   title: 'AePS reports',
-        //   link: '/dashboard/reports/aeps?pageId=reports',
-        //   id: "aepsReport",
-        //   soon: false,
-        // },
+        {
+          title: 'AePS reports',
+          link: '/dashboard/reports/aeps?pageId=reports',
+          id: "aepsReport",
+          soon: false,
+        },
         // {
         //   title: 'BBPS reports',
         //   link: '/dashboard/reports/bbps?pageId=reports',
