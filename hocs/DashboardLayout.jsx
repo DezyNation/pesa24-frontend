@@ -117,24 +117,24 @@ const DashboardWrapper = (props) => {
 
   useEffect(() => {
     // Fetch all notifications
-    ClientAxios.post(
-      "/api/user/fetch",
-      {
-        user_id: localStorage.getItem("userId"),
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((res) => {
-        setAvailablePages(res.data[0].allowed_pages);
-        // setUserNotifications(res.data[0].notifications);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // ClientAxios.post(
+    //   "/api/user/fetch",
+    //   {
+    //     user_id: localStorage.getItem("userId"),
+    //   },
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // )
+    //   .then((res) => {
+    //     setAvailablePages(res.data[0].allowed_pages);
+    //     // setUserNotifications(res.data[0].notifications);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   }, []);
 
   useEffect(() => {
@@ -485,7 +485,7 @@ const DashboardWrapper = (props) => {
 
                   if (option.type == "accordion") {
                     return (
-                      <Accordion allowToggle w={"full"}>
+                      <Accordion allowToggle w={"full"} key={key}>
                         <AccordionItem border={"none"}>
                           <AccordionButton
                             px={[3, 3]}
@@ -543,7 +543,7 @@ const DashboardWrapper = (props) => {
                   }
                 })}
 
-                {userType != "retailer" && (
+                {/* {userType != "retailer" && (
                   <Accordion allowToggle w={"full"}>
                     <AccordionItem>
                       <AccordionButton px={[0, 3]} _expanded={{ bg: "aqua" }}>
@@ -630,7 +630,7 @@ const DashboardWrapper = (props) => {
                       </AccordionPanel>
                     </AccordionItem>
                   </Accordion>
-                )}
+                )} */}
               </VStack>
 
               <BankDetails color={"#000"} />

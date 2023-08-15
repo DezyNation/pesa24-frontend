@@ -378,7 +378,7 @@ const Sidebar = ({ userName, userImage }) => {
 
                 if (option.type == 'accordion') {
                   return (
-                    <Accordion allowToggle w={'full'}>
+                    <Accordion allowToggle w={'full'} key={key}>
 
                       <AccordionItem border={'none'}>
                         <AccordionButton
@@ -415,10 +415,10 @@ const Sidebar = ({ userName, userImage }) => {
                               if (availablePages.includes(item.id) || alwaysAvailable.includes(item.id)) {
                                 return (
                                   <Box
-                                    px={3} py={2} w={'full'}
+                                    px={3} py={2} w={'full'} key={key} 
 
                                   >
-                                    <Link key={key} href={item.soon ? "#" : item.link}
+                                    <Link href={item.soon ? "#" : item.link}
                                       style={{
                                         width: '100%',
                                         display: 'flex',

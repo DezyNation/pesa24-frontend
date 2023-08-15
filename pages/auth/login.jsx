@@ -620,7 +620,7 @@ const Login = () => {
           </ModalBody>
           <ModalFooter>
             <HStack justifyContent={"flex-end"} spacing={6}>
-              <Button colorScheme={"orange"} onClick={() => handleMpin()}>
+              <Button colorScheme={"twitter"} onClick={() => handleMpin()}>
                 Login
               </Button>
             </HStack>

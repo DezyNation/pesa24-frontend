@@ -162,7 +162,7 @@ const Index = () => {
                 </Text>
               </Box>
             </Stack>
-            {/* <Stack
+            <Stack
               direction={["column", "row"]}
               p={4}
               boxShadow={"md"}
@@ -185,7 +185,7 @@ const Index = () => {
                   ₹ {Math.abs(dmtData.credit - dmtData.debit) || 0}
                 </Text>
               </Box>
-            </Stack> */}
+            </Stack>
           </HStack>
 
           <Box
@@ -306,7 +306,7 @@ const Index = () => {
                 </Link>
               </Box>
 
-              {/* <Box
+              <Box
                 w={["27.5%", "20%"]}
                 p={4}
                 _hover={{ bgColor: "rgba(0,0,0,0.2)" }}
@@ -332,7 +332,7 @@ const Index = () => {
                     DMT
                   </Text>
                 </Link>
-              </Box> */}
+              </Box>
 
               <Box
                 w={["27.5%", "20%"]}

@@ -50,7 +50,7 @@ import axios from "axios";
 const Payout = () => {
   const [serviceId, setServiceId] = useState("25");
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const Toast = useToast();
+  const Toast = useToast({position: 'top-right'});
   const [isLoading, setIsLoading] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
   const [serviceStatus, setServiceStatus] = useState(true);
@@ -117,6 +117,12 @@ const Payout = () => {
   });
 
   function fetchBankDetails() {
+    if(!Formik.values.ifsc) {
+      Toast({
+        description: "Please enter IFSC"
+      })
+      return
+    }
     axios.get(`https://ifsc.razorpay.com/${Formik.values.ifsc}`).then(res=>{
       Formik.setFieldValue("bankName", res.data['BANK'])
     }).catch(err=>{
@@ -158,12 +164,12 @@ const Payout = () => {
 
   async function makePayout() {
     setIsLoading(true);
-    await fetchServiceStatus();
     if (!serviceStatus) {
       Toast({
         status: "warning",
         description: "Service unavailable!",
       });
+      setIsLoading(false);
       return;
     }
     await BackendAxios.post(
@@ -210,25 +216,25 @@ const Payout = () => {
 
   const [rowdata, setRowdata] = useState([]);
   useEffect(() => {
-    ClientAxios.post(
-      "/api/user/fetch",
-      {
-        user_id: localStorage.getItem("userId"),
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((res) => {
-        if (res.data[0].allowed_pages.includes("payoutTransaction") == false) {
-          window.location.assign("/dashboard/not-allowed");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // ClientAxios.post(
+    //   "/api/user/fetch",
+    //   {
+    //     user_id: localStorage.getItem("userId"),
+    //   },
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // )
+    //   .then((res) => {
+    //     if (res.data[0].allowed_pages.includes("payoutTransaction") == false) {
+    //       window.location.assign("/dashboard/not-allowed");
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
     fetchPayouts();
   }, []);
 
@@ -304,6 +310,7 @@ const Payout = () => {
                     fontSize={"xs"}
                     color={"twitter.500"}
                     fontWeight={"semibold"}
+                    cursor={'pointer'}
                     onClick={fetchBankDetails}
                   >
                     Fetch Automatically
@@ -380,7 +387,7 @@ const Payout = () => {
               </Button>
             </HStack>
             <TableContainer h={"full"}>
-              <Table>
+              <Table size={'sm'}>
                 <Thead>
                   <Tr>
                     <Th>#</Th>

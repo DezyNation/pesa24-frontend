@@ -264,33 +264,6 @@ const Dashboard = () => {
 
         </Stack>
 
-        <Stack
-          pt={4}
-          direction={['column-reverse', 'row']}
-          justifyContent={['flex-start', 'space-between']}
-        >
-          <Hide below='md'>
-            <Box
-              w={['full', 'md', 'xl']}
-              p={4} rounded={12}
-              bg={'white'}
-              boxShadow={'md'}
-            >
-              <Text mb={4}>New Notifications</Text>
-              {newNotification ? (
-                notifications.map((notification, key) =>
-                  <SimpleAccordion
-                    key={key}
-                    title={notification.title}
-                    content={notification.content}
-                  />
-                )
-              ) : <Box display={'grid'} placeContent={'center'}>No new notifications</Box>}
-            </Box>
-          </Hide>
-
-        </Stack>
-
       </DashboardWrapper>
 
       {/* Profile Incompletion Alert */}
