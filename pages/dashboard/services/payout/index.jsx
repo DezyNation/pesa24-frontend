@@ -354,7 +354,7 @@ const Payout = () => {
                 </RadioGroup>
               </FormControl>
               <Button
-                colorScheme={"orange"}
+                colorScheme={"twitter"}
                 onClick={() => {
                   if (Number(Formik.values.amount) >= 149999) triggerOtp();
                   else onOpen();

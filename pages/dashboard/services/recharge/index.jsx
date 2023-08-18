@@ -541,7 +541,7 @@ const Bbps = () => {
                         return (
                           <Button
                             rounded={"full"}
-                            colorScheme={"orange"}
+                            colorScheme={"twitter"}
                             variant={"outline"}
                             key={key}
                             onClick={() => {
@@ -640,7 +640,7 @@ const Bbps = () => {
                 )}
                 {fetchInfoBtn && (
                   <Button
-                    colorScheme={"orange"}
+                    colorScheme={"twitter"}
                     onClick={() => hlrRequest()}
                     isLoading={isLoading}
                   >
@@ -673,7 +673,7 @@ const Bbps = () => {
           <ModalFooter>
             <HStack justifyContent={"flex-end"}>
               <Button
-                colorScheme={"orange"}
+                colorScheme={"twitter"}
                 onClick={() => doRecharge()}
                 isLoading={isLoading}
               >
@@ -787,7 +787,7 @@ const Bbps = () => {
                   <Button
                     rounded={"full"}
                     size={"sm"}
-                    colorScheme={"orange"}
+                    colorScheme={"twitter"}
                     leftIcon={<BsDownload />}
                     onClick={toPdf}
                   >

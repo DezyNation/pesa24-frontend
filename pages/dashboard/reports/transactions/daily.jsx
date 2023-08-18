@@ -298,11 +298,6 @@ const Index = () => {
   return (
     <>
       <DashboardWrapper pageTitle={"Daily Sales"}>
-        <HStack>
-          <Button onClick={ExportPDF} colorScheme={"red"} size={"sm"}>
-            Export PDF
-          </Button>
-        </HStack>
         <HStack justifyContent={"flex-start"} py={4}>
           <FormControl w={["full", "xs"]}>
             <FormLabel>From</FormLabel>
@@ -325,7 +320,7 @@ const Index = () => {
         </HStack>
         <HStack justifyContent={"flex-end"}>
           <Button
-            colorScheme="orange"
+            colorScheme="twitter"
             onClick={() => {
               fetchSum();
             }}

@@ -268,7 +268,7 @@ const Index = () => {
       <HStack height={"full"} w={"full"} gap={4}>
         <Button
           rounded={"full"}
-          colorScheme="orange"
+          colorScheme="twitter"
           size={"xs"}
           onClick={() => showReceipt()}
         >
@@ -365,9 +365,6 @@ const Index = () => {
             Excel
           </Button>
         </HStack>
-        <Box p={2} bg={"orange.500"} roundedTop={16}>
-          <Text color={"#FFF"}>Search Transactions</Text>
-        </Box>
         <Stack p={4} spacing={8} w={"full"} direction={["column", "row"]}>
           <FormControl w={["full", "xs"]}>
             <FormLabel>From Date</FormLabel>
@@ -397,7 +394,7 @@ const Index = () => {
           </FormControl>
         </Stack>
         <HStack mb={4} justifyContent={"flex-end"}>
-          <Button onClick={() => fetchTransactions()} colorScheme={"orange"}>
+          <Button onClick={() => fetchTransactions()} colorScheme={"twitter"}>
             Search
           </Button>
         </HStack>
@@ -412,7 +409,7 @@ const Index = () => {
         >
           <HStack spacing={2}>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -421,7 +418,7 @@ const Index = () => {
               <BsChevronDoubleLeft />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -430,7 +427,7 @@ const Index = () => {
               <BsChevronLeft />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"solid"}
@@ -438,7 +435,7 @@ const Index = () => {
               {pagination.current_page}
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -447,7 +444,7 @@ const Index = () => {
               <BsChevronRight />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -612,7 +609,7 @@ const Index = () => {
                   <Button
                     rounded={"full"}
                     size={"sm"}
-                    colorScheme={"orange"}
+                    colorScheme={"twitter"}
                     leftIcon={<BsDownload />}
                     onClick={toPdf}
                   >

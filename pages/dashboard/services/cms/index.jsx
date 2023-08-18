@@ -156,6 +156,8 @@ const Cms = () => {
   return (
     <>
       <DashboardWrapper pageTitle={"CMS"}>
+      <HStack alignItems={'flex-start'} justifyContent={'space-between'} gap={[16, 8]} flexWrap={'wrap'}>
+
         <Box w={["full", "lg"]} p={4} rounded={8} boxShadow={"lg"} bg={"#FFF"}>
           <FormControl w={["full", "sm"]} pb={8} isRequired>
             <FormLabel>Select Provider</FormLabel>
@@ -190,10 +192,10 @@ const Cms = () => {
             Submit
           </Button>
         </Box>
-        <Text size={"lg"} fontWeight={"semibold"} pt={"16"} pb={"4"}>
+        <Box w={["full", "lg"]} p={4} rounded={8} boxShadow={"lg"} bg={"#FFF"}>
+        <Text size={"lg"} fontWeight={"semibold"} pb={"4"}>
           Check Transaction Status
         </Text>
-        <Box w={["full", "lg"]} p={4} rounded={8} boxShadow={"lg"} bg={"#FFF"}>
           <FormControl w={["full", "sm"]} pb={8} isRequired>
             <FormLabel>Select Provider</FormLabel>
             <Select
@@ -214,6 +216,7 @@ const Cms = () => {
             Check Status
           </Button>
         </Box>
+      </HStack>
       </DashboardWrapper>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered={true} size={"md"}>

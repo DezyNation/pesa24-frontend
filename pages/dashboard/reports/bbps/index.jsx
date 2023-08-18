@@ -40,6 +40,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { toBlob } from "html-to-image";
 import { useFormik } from "formik";
+import { FiRefreshCcw } from "react-icons/fi";
+import fileDownload from "js-file-download";
 
 const ExportPDF = () => {
   const doc = new jsPDF("landscape");
@@ -93,12 +95,17 @@ const Index = () => {
       cellRenderer: "categoryCellRenderer",
     },
     {
+      headerName: "CA Number",
+      field: "metadata",
+      cellRenderer: "caNumberCellRenderer",
+    },
+    {
       headerName: "Transaction Status",
       field: "status",
       cellRenderer: "statusCellRenderer",
     },
     {
-      headerName: "Create Timestamp",
+      headerName: "Created At",
       field: "created_at",
     },
     {
@@ -118,6 +125,8 @@ const Index = () => {
       width: 80,
     },
   ]);
+  const [loading, setLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const handleShare = async () => {
     const myFile = await toBlob(pdfRef.current, { quality: 0.95 });
@@ -150,7 +159,52 @@ const Index = () => {
     },
   });
 
+  function generateReport(doctype) {
+    if (!Formik.values.from || !Formik.values.to) {
+      Toast({
+        description: "Please select dates to generate report",
+      });
+      return;
+    }
+    setReportLoading(true);
+    BackendAxios.get(
+      `/api/user/print-reports?from=${
+        Formik.values.from + (Formik.values.from && "T" + "00:00")
+      }&to=${Formik.values.to + (Formik.values.to && "T" + "23:59")}&search=${
+        Formik.values.search
+      }&status=${
+        Formik.values.status != "all" ? Formik.values.status : ""
+      }&type=ledger&name=${transactionKeyword}&doctype=${doctype}`,
+      {
+        responseType: "blob",
+      }
+    )
+      .then((res) => {
+        setReportLoading(false);
+        if (doctype == "excel") {
+          fileDownload(res.data, "BillPayReport.xlsx");
+        } else {
+          fileDownload(res.data, "BillPayReport.pdf");
+        }
+      })
+      .catch((err) => {
+        setReportLoading(false);
+        if (err?.response?.status == 401) {
+          Cookies.remove("verified");
+          window.location.reload();
+          return;
+        }
+        console.log(err);
+        Toast({
+          status: "error",
+          description:
+            err.response.data.message || err.response.data || err.message,
+        });
+      });
+  }
+
   function fetchTransactions(pageLink) {
+    setLoading(true);
     BackendAxios.get(
       pageLink ||
         `/api/user/ledger/${transactionKeyword}?from=${
@@ -162,6 +216,7 @@ const Index = () => {
         }&page=1`
     )
       .then((res) => {
+        setLoading(false);
         setPagination({
           current_page: res.data.current_page,
           total_pages: parseInt(res.data.last_page),
@@ -171,7 +226,7 @@ const Index = () => {
           prev_page_url: res.data.prev_page_url,
         });
         setRowData(res.data.data);
-        setPrintableRow(res.data.data);
+        // setPrintableRow(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -278,12 +333,37 @@ const Index = () => {
     );
   };
 
+  const caNumberCellRenderer = (params) => {
+    return (
+      <>
+        {
+          <Text color={"green"} fontWeight={"bold"}>
+            {JSON.parse(params?.data?.metadata)?.ca_number}
+          </Text>
+        }
+      </>
+    );
+  };
+
   return (
     <>
       <DashboardWrapper pageTitle={"BBPS Reports"}>
         <HStack pb={4}>
-          <Button onClick={ExportPDF} colorScheme={"red"} size={"sm"}>
+          <Button
+            onClick={() => generateReport("pdf")}
+            colorScheme={"red"}
+            size={"sm"}
+            isLoading={reportLoading}
+          >
             Export PDF
+          </Button>
+          <Button
+            onClick={() => generateReport("excel")}
+            colorScheme={"whatsapp"}
+            size={"sm"}
+            isLoading={reportLoading}
+          >
+            Excel
           </Button>
         </HStack>
 
@@ -316,7 +396,7 @@ const Index = () => {
               <option value="all">All</option>
               <option value="success">Processed</option>
               <option value="failed">Failed</option>
-              <option value="pending">Cancelled</option>
+              <option value="pending">Pending</option>
             </Select>
           </FormControl>
           <FormControl w={["full", "xs"]}>
@@ -329,56 +409,68 @@ const Index = () => {
             Search
           </Button>
         </HStack>
+
         <HStack
           spacing={2}
-          py={4}
+          p={4}
           mt={24}
           bg={"white"}
-          justifyContent={"center"}
+          justifyContent={"space-between"}
         >
+          <HStack spacing={2}>
+            <Button
+              colorScheme={"twitter"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.first_page_url)}
+            >
+              <BsChevronDoubleLeft />
+            </Button>
+            <Button
+              colorScheme={"twitter"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.prev_page_url)}
+            >
+              <BsChevronLeft />
+            </Button>
+            <Button
+              colorScheme={"twitter"}
+              fontSize={12}
+              size={"xs"}
+              variant={"solid"}
+            >
+              {pagination.current_page}
+            </Button>
+            <Button
+              colorScheme={"twitter"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.next_page_url)}
+            >
+              <BsChevronRight />
+            </Button>
+            <Button
+              colorScheme={"twitter"}
+              fontSize={12}
+              size={"xs"}
+              variant={"outline"}
+              onClick={() => fetchTransactions(pagination.last_page_url)}
+            >
+              <BsChevronDoubleRight />
+            </Button>
+          </HStack>
           <Button
-            colorScheme={"twitter"}
-            fontSize={12}
-            size={"xs"}
-            variant={"outline"}
-            onClick={() => fetchTransactions(pagination.first_page_url)}
+            colorScheme="blue"
+            isLoading={loading}
+            variant={"ghost"}
+            onClick={() => fetchTransactions()}
+            leftIcon={<FiRefreshCcw />}
           >
-            <BsChevronDoubleLeft />
-          </Button>
-          <Button
-            colorScheme={"twitter"}
-            fontSize={12}
-            size={"xs"}
-            variant={"outline"}
-            onClick={() => fetchTransactions(pagination.prev_page_url)}
-          >
-            <BsChevronLeft />
-          </Button>
-          <Button
-            colorScheme={"twitter"}
-            fontSize={12}
-            size={"xs"}
-            variant={"solid"}
-          >
-            {pagination.current_page}
-          </Button>
-          <Button
-            colorScheme={"twitter"}
-            fontSize={12}
-            size={"xs"}
-            variant={"outline"}
-            onClick={() => fetchTransactions(pagination.next_page_url)}
-          >
-            <BsChevronRight />
-          </Button>
-          <Button
-            colorScheme={"twitter"}
-            fontSize={12}
-            size={"xs"}
-            variant={"outline"}
-            onClick={() => fetchTransactions(pagination.last_page_url)}
-          >
-            <BsChevronDoubleRight />
+            Click To Reload Data
           </Button>
         </HStack>
         <Box py={6}>
@@ -402,7 +494,8 @@ const Index = () => {
                 creditCellRenderer: creditCellRenderer,
                 debitCellRenderer: debitCellRenderer,
                 statusCellRenderer: statusCellRenderer,
-                categoryCellRenderer: categoryCellRenderer
+                categoryCellRenderer: categoryCellRenderer,
+                caNumberCellRenderer: caNumberCellRenderer,
               }}
               onFilterChanged={(params) => {
                 setPrintableRow(

@@ -502,7 +502,7 @@ const Index = () => {
         >
           <HStack spacing={2}>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -511,7 +511,7 @@ const Index = () => {
               <BsChevronDoubleLeft />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -520,7 +520,7 @@ const Index = () => {
               <BsChevronLeft />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"solid"}
@@ -528,7 +528,7 @@ const Index = () => {
               {pagination.current_page}
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}
@@ -537,7 +537,7 @@ const Index = () => {
               <BsChevronRight />
             </Button>
             <Button
-              colorScheme={"orange"}
+              colorScheme={"twitter"}
               fontSize={12}
               size={"xs"}
               variant={"outline"}

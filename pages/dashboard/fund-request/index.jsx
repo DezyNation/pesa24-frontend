@@ -467,7 +467,7 @@ const FundRequest = () => {
               >
                 Clear Data
               </Button>
-              <Button colorScheme={"orange"} onClick={Formik.handleSubmit}>
+              <Button colorScheme={"twitter"} onClick={Formik.handleSubmit}>
                 Send Request
               </Button>
             </HStack>

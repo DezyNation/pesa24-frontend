@@ -333,6 +333,7 @@ const Sidebar = ({ userName, userImage }) => {
           w={"64"}
           boxShadow={"md"}
           h={"100vh"}
+          bgColor={'purple.400'}
           bgImage={'/sidebarBg.svg'}
           bgSize={'cover'}
           bgRepeat={'no-repeat'}
