@@ -338,7 +338,7 @@ const Index = () => {
       <>
         {
           <Text color={"green"} fontWeight={"bold"}>
-            {JSON.parse(params?.data?.metadata)?.ca_number}
+            {JSON.parse(params?.data?.metadata)?.canumber}
           </Text>
         }
       </>
