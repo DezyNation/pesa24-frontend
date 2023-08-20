@@ -420,8 +420,26 @@ const Index = () => {
                 <Th color={"#FFF"}>Payout</Th>
                 <Th color={"#FFF"}>Charge</Th>
                 <Th color={"#FFF"}>Reharge</Th>
-                <Th color={"#FFF"}>Recharge Fees</Th>
-                <Th color={"#FFF"}>Recharge Comm.</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>AePS CW</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>AePS Payout</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>Bill Pay</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>DMT</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>LIC</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
+                <Th color={"#FFF"}>Fastag</Th>
+                <Th color={"#FFF"}>Charge</Th>
+                <Th color={"#FFF"}>Comm.</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -464,44 +482,103 @@ const Index = () => {
                       overviewData[12]?.["recharge-commission"]?.credit
                   ) || 0}
                 </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-cw"]?.credit -
+                      overviewData[12]?.["aeps-cw"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-cw-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-cw-commission"]?.credit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-pay"]?.credit -
+                      overviewData[12]?.["aeps-pay"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-pay-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["aeps-pay-commission"]?.credit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["bbps"]?.credit -
+                      overviewData[12]?.["bbps"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["bbps-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["bbps-commission"]?.credit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["dmt"]?.credit -
+                      overviewData[12]?.["dmt"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["dmt-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["dmt-commission"]?.credit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["lic"]?.credit -
+                      overviewData[12]?.["lic"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["lic-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["lic-commission"]?.credit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["fastag"]?.credit -
+                      overviewData[12]?.["fastag"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["fastag-commission"]?.debit
+                  ) || 0}
+                </Td>
+                <Td>
+                  {Math.abs(
+                      overviewData[12]?.["fastag-commission"]?.credit
+                  ) || 0}
+                </Td>
               </Tr>
-              {/* <Tr>
-                <Td>
-                  <Text
-                    textAlign={"right"}
-                    fontWeight={"semibold"}
-                    fontSize={"lg"}
-                  >
-                    TOTAL
-                  </Text>
-                </Td>
-                <Td>
-                  <Text
-                    textAlign={"left"}
-                    fontWeight={"semibold"}
-                    fontSize={"lg"}
-                  >
-                    {Math.abs(
-                      overviewData[4]?.["payout"]?.credit -
-                        overviewData[4]?.["payout"]?.debit
-                    ) || 0}
-                  </Text>
-                </Td>
-                <Td>
-                  <Text
-                    textAlign={"left"}
-                    fontWeight={"semibold"}
-                    fontSize={"lg"}
-                  >
-                    {Math.abs(
-                      overviewData[11]?.["payout-commission"]?.credit +
-                        overviewData[10]?.["payout-charge"]?.credit -
-                        (overviewData[11]?.["payout-commission"]?.debit +
-                          overviewData[10]?.["payout-charge"]?.debit)
-                    ).toFixed(2) || 0}
-                  </Text>
-                </Td>
-              </Tr> */}
             </Tbody>
           </Table>
         </TableContainer>
