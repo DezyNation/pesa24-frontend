@@ -409,14 +409,6 @@ const Index = () => {
                 <Th color={"#FFF"} rowSpan={2}>
                   User Info
                 </Th>
-                {/* <Th color={"#FFF"} rowSpan={2}>
-                  Wallet Balance
-                </Th> */}
-                <Th color={"#FFF"} colSpan={5} textAlign={"center"}>
-                  Transactions
-                </Th>
-              </Tr>
-              <Tr>
                 <Th color={"#FFF"}>Payout</Th>
                 <Th color={"#FFF"}>Charge</Th>
                 <Th color={"#FFF"}>Reharge</Th>
