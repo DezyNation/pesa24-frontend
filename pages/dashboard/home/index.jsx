@@ -100,9 +100,9 @@ const Index = () => {
       });
   }, []);
 
-  useEffect(()=>{
-    if(bbpsProvider == "eko"){
-      setIsLoading(true)
+  useEffect(() => {
+    if (bbpsProvider == "eko") {
+      setIsLoading(true);
       BackendAxios.get(`api/eko/bbps/operators/categories`)
         .then((res) => {
           setCategories(res.data.data);
@@ -119,13 +119,13 @@ const Index = () => {
             status: "warning",
             title: "Error while fetching operators",
             description:
-              err.response?.data?.message || err.response.data || err.message
+              err.response?.data?.message || err.response.data || err.message,
           });
           setIsLoading(false);
         });
     }
     if (bbpsProvider == "paysprint") {
-      setIsLoading(true)
+      setIsLoading(true);
       BackendAxios.get(`api/${bbpsProvider}/bbps/operators/categories`)
         .then((res) => {
           setCategories(
@@ -145,12 +145,13 @@ const Index = () => {
           Toast({
             status: "warning",
             title: "Error while fetching operators",
-            description: err.response?.data?.message || err.response.data || err.message
+            description:
+              err.response?.data?.message || err.response.data || err.message,
           });
           setIsLoading(false);
         });
     }
-  },[bbpsProvider])
+  }, [bbpsProvider]);
 
   return (
     <>
@@ -557,135 +558,133 @@ const Index = () => {
               gap={[4, 8]}
               flexWrap={"wrap"}
             >
-              {bbpsProvider == "eko"
-                ? categories.map((item, key) => (
-                    <Box
-                      w={["25%", "20%"]}
-                      p={[4]}
-                      key={key}
-                      _hover={{ bgColor: "rgba(0,0,0,0.2)" }}
-                      rounded={"full"}
-                      transition={"all .3s ease"}
+              {categories?.map((item, key) => (
+                <Box
+                  w={["25%", "20%"]}
+                  p={[4]}
+                  key={key}
+                  _hover={{ bgColor: "rgba(0,0,0,0.2)" }}
+                  rounded={"full"}
+                  transition={"all .3s ease"}
+                >
+                  <Link
+                    href={{
+                      pathname: `/dashboard/services/bbps`,
+                      query: {
+                        pageId: "services",
+                        passedCategory:
+                          bbpsProvider == "eko"
+                            ? item.operator_category_id
+                            : item.operator_category_name,
+                      },
+                    }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      gap: "8px",
+                      height: "84px",
+                    }}
+                  >
+                    {item.operator_category_name
+                      .toLowerCase()
+                      .includes("mobile") ? (
+                      <FaMobile color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("broadband") ? (
+                      <HiServerStack color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("gas") ||
+                      item.operator_category_name
+                        .toLowerCase()
+                        .includes("lpg") ? (
+                      <AiFillFire color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("dth") ? (
+                      <FaSatelliteDish color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("card") ? (
+                      <BsCreditCardFill color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("electricity") ? (
+                      <BsLightningChargeFill color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("landline") ? (
+                      <GiRotaryPhone color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("water") ? (
+                      <BsDropletFill color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("housing") ||
+                      item.operator_category_name
+                        .toLowerCase()
+                        .includes("rental") ? (
+                      <BsHouseDoorFill color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("education") ? (
+                      <GoMortarBoard color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("tax") ? (
+                      <BiRupee color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("associations") ? (
+                      <FaUsers color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("tv") ? (
+                      <FiMonitor color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("hospital") ||
+                      item.operator_category_name
+                        .toLowerCase()
+                        .includes("donation") ? (
+                      <FaHeart color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("insurance") ? (
+                      <IoMdUmbrella color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("loan") ? (
+                      <GiMoneyStack color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("fastag") ? (
+                      <FaCar color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("municipal services") ? (
+                      <FaCity color={"#FFF"} size={28} />
+                    ) : item.operator_category_name
+                        .toLowerCase()
+                        .includes("subscription") ? (
+                      <FaMoneyBillAlt color={"#FFF"} size={28} />
+                    ) : (
+                      <BiRupee color={"#FFF"} size={28} />
+                    )}
+                    <Text
+                      textAlign={"center"}
+                      color={"#FFF"}
+                      fontSize={["sm", "md"]}
                     >
-                      <Link
-                        href={{
-                          pathname: `/dashboard/services/bbps`,
-                          query: {
-                            pageId: "services",
-                            passedCategory:
-                              bbpsProvider == "eko"
-                                ? item.operator_category_id
-                                : item.operator_category_name,
-                          },
-                        }}
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "flex-start",
-                          gap: "8px",
-                          height: "84px",
-                        }}
-                      >
-                        {item.operator_category_name
-                          .toLowerCase()
-                          .includes("mobile") ? (
-                          <FaMobile color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("broadband") ? (
-                          <HiServerStack color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("gas") ||
-                          item.operator_category_name
-                            .toLowerCase()
-                            .includes("lpg") ? (
-                          <AiFillFire color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("dth") ? (
-                          <FaSatelliteDish color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("card") ? (
-                          <BsCreditCardFill color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("electricity") ? (
-                          <BsLightningChargeFill color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("landline") ? (
-                          <GiRotaryPhone color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("water") ? (
-                          <BsDropletFill color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("housing") ||
-                          item.operator_category_name
-                            .toLowerCase()
-                            .includes("rental") ? (
-                          <BsHouseDoorFill color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("education") ? (
-                          <GoMortarBoard color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("tax") ? (
-                          <BiRupee color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("associations") ? (
-                          <FaUsers color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("tv") ? (
-                          <FiMonitor color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("hospital") ||
-                          item.operator_category_name
-                            .toLowerCase()
-                            .includes("donation") ? (
-                          <FaHeart color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("insurance") ? (
-                          <IoMdUmbrella color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("loan") ? (
-                          <GiMoneyStack color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("fastag") ? (
-                          <FaCar color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("municipal services") ? (
-                          <FaCity color={"#FFF"} size={28} />
-                        ) : item.operator_category_name
-                            .toLowerCase()
-                            .includes("subscription") ? (
-                          <FaMoneyBillAlt color={"#FFF"} size={28} />
-                        ) : (
-                          <BiRupee color={"#FFF"} size={28} />
-                        )}
-                        <Text
-                          textAlign={"center"}
-                          color={"#FFF"}
-                          fontSize={["sm", "md"]}
-                        >
-                          {item.operator_category_name}
-                        </Text>
-                      </Link>
-                    </Box>
-                  ))
-                : null}
+                      {item.operator_category_name}
+                    </Text>
+                  </Link>
+                </Box>
+              ))}
             </HStack>
           </Box>
 
