@@ -101,6 +101,7 @@ const Aeps = () => {
   const [aepsProvider, setAepsProvider] = useState("");
   const transactionKeyword = "aeps";
   const serviceCode = "20";
+  const today = new Date();
   useEffect(() => {
     ClientAxios.post(
       "/api/user/fetch",
@@ -264,6 +265,14 @@ const Aeps = () => {
               position: "top-right",
             });
             formik.setFieldValue("pid", data).then(() => {
+              if(!isRegistered) {
+                twofactorRegister()
+                return
+              }
+              if(!isAuthenticated){ 
+                twofactorAuthenticate()
+                return
+              }
               formik.handleSubmit();
             });
           } else {
@@ -341,6 +350,14 @@ const Aeps = () => {
   const [biometricDevice, setBiometricDevice] = useState("");
   const [banksList, setBanksList] = useState([]);
   const Toast = useToast({ position: "top-right" });
+
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {}, []);
+
   const formik = useFormik({
     initialValues: {
       aadhaarNo: "",
@@ -354,6 +371,8 @@ const Aeps = () => {
       amount: "",
       serviceId: "20", // Services ID as per Pesa24 Portal
       latlong: Cookies.get("latlong"),
+      latitude: Cookies.get("latlong")?.split(",")[0],
+      longitude: Cookies.get("latlong")?.split(",")[1],
     },
     onSubmit: async (values) => {
       setIsBtnLoading(true);
@@ -452,6 +471,22 @@ const Aeps = () => {
 
   useEffect(() => {
     if (aepsProvider == "paysprint") {
+      if(isNaN(localStorage.getItem("merchantId"))){
+        setIsRegistered(false)
+        setShowRegistrationModal(true)
+      }
+      if (
+        parseInt(localStorage.getItem("merchantId")) > 10
+      ) {
+        setIsRegistered(true);
+        setShowRegistrationModal(false);
+        if (
+          localStorage.getItem("lastAuthenticatedOn") == today.toDateString()
+        ) {
+          setIsAuthenticated(true);
+          setShowAuthModal(false)
+        }
+      }
       BackendAxios.get(`/api/paysprint/aeps/fetch-bank/${serviceCode}`)
         .then((res) => {
           setBanksList(res.data.banklist.data);
@@ -618,6 +653,72 @@ const Aeps = () => {
     formik.setFieldValue("bankName", params.split("_")[1]);
     console.log(params.split("_")[0]);
     console.log(params.split("_")[1]);
+  }
+
+  function twofactorAuthenticate() {
+    if (aepsProvider == "paysprint") {
+      BackendAxios.post(
+        `/api/paysprint/aeps/twofactor-authenticate/${serviceCode}`,
+        {
+          latitude: formik.values.latitude,
+          longitude: formik.values.longitude,
+          pid: formik.values.pid,
+        }
+      )
+        .then((res) => {
+          if (res.data?.response_code == 1 && res.data?.errorcode == 0) {
+            Toast({
+              description: "Authentication Successful!",
+            });
+            localStorage.setItem("lastAuthenticatedOn", today.toDateString());
+            setShowAuthModal(false);
+            setIsAuthenticated(true)
+          } else {
+            Toast({ status: "warning", description: res.data?.message });
+          }
+        })
+        .catch((err) => {
+          Toast({
+            status: "error",
+            description:
+              err.response.data.message || err.response.data || err.message,
+          });
+        });
+    }
+  }
+
+  function twofactorRegister() {
+    if (aepsProvider == "paysprint") {
+      BackendAxios.post(
+        `/api/paysprint/aeps/twofactor-register/${serviceCode}`,
+        {
+          latitude: formik.values.latitude,
+          longitude: formik.values.longitude,
+          pid: formik.values.pid,
+        }
+      )
+        .then((res) => {
+          if (res.data?.merchant_id) {
+            Toast({
+              title: "Registration Successful!",
+              description: "Please do authentication now",
+            });
+            localStorage.setItem("merchantId", res.data?.merchant_id);
+            setIsRegistered(true)
+            setShowRegistrationModal(false);
+            setShowAuthModal(true)
+          } else {
+            Toast({ status: "warning", description: res.data?.message });
+          }
+        })
+        .catch((err) => {
+          Toast({
+            status: "error",
+            description:
+              err.response.data.message || err.response.data || err.message,
+          });
+        });
+    }
   }
 
   return (
@@ -1042,6 +1143,48 @@ const Aeps = () => {
                 )}
               </Pdf>
             </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* AePS Registration Modal */}
+      <Modal isOpen={showRegistrationModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Merchant Registration Required</ModalHeader>
+          <ModalBody>
+            <Text>
+              Please use your biometric device to initiate registration
+            </Text>
+          </ModalBody>
+          <ModalFooter justifyContent={"flex-end"}>
+            <Button
+              colorScheme="twitter"
+              onClick={() => getMantra(rdservicePort)}
+            >
+              Start Registration
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Daily Authentication Modal */}
+      <Modal isOpen={showAuthModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Merchant Authentication Required</ModalHeader>
+          <ModalBody>
+            <Text>
+              Please use your biometric device to initiate authentication
+            </Text>
+          </ModalBody>
+          <ModalFooter justifyContent={"flex-end"}>
+            <Button
+              colorScheme="twitter"
+              onClick={() => getMantra(rdservicePort)}
+            >
+              Start Authentication
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
