@@ -282,8 +282,7 @@ const Index = () => {
         px={1}
         flex={"unset"}
         w={"fit-content"}
-        bgColor={params.value > 0 && "green.400"}
-        color={params.value > 0 && "#FFF"}
+        color={params.value > 0 && "green.400"}
       >
         {params.value}
       </Text>
@@ -296,8 +295,7 @@ const Index = () => {
         px={1}
         flex={"unset"}
         w={"fit-content"}
-        bgColor={params.value > 0 && "red.400"}
-        color={params.value > 0 && "#FFF"}
+        color={params.value > 0 && "red.400"}
       >
         {params.value}
       </Text>
@@ -337,7 +335,7 @@ const Index = () => {
     return (
       <>
         {
-          <Text color={"green"} fontWeight={"bold"}>
+          <Text fontWeight={"bold"}>
             {JSON.parse(params?.data?.metadata)?.canumber}
           </Text>
         }
