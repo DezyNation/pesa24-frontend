@@ -458,7 +458,7 @@ const Sidebar = ({ userName, userImage }) => {
               userType != "retailer" &&
               <Accordion allowToggle w={'full'}>
 
-                <AccordionItem>
+                <AccordionItem border={'none'}>
                   <AccordionButton px={[0, 3]}
                     id={'users'}
                   >
