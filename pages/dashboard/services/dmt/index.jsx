@@ -50,7 +50,7 @@ const Dmt = () => {
   useEffect(() => {
     setIsLoading(true);
     setIsBtnLoading(true);
-    window.location.assign("/dashboard/not-allowed");
+    // window.location.assign("/dashboard/not-allowed");
     ClientAxios.post(
       "/api/user/fetch",
       {
@@ -63,14 +63,20 @@ const Dmt = () => {
       }
     )
       .then((res) => {
+        setIsBtnLoading(false);
+        setIsLoading(false);
         if (res.data[0].allowed_pages.includes("dmtTransaction") == false) {
           window.location.assign("/dashboard/not-allowed");
         }
       })
       .catch((err) => {
         console.log(err);
+        setIsBtnLoading(false);
+        setIsLoading(false);
       });
 
+    setIsBtnLoading(true);
+    setIsLoading(true);
     ClientAxios.get(`/api/global`)
       .then((res) => {
         setDmtProvider(res.data[0].dmt_provider);
@@ -87,19 +93,22 @@ const Dmt = () => {
             description: "We are facing some issues.",
           });
         }
-        setIsBtnLoading(true);
+        setIsBtnLoading(false);
         setIsLoading(false);
       });
 
+    setIsBtnLoading(true);
     setIsLoading(true);
     ClientAxios.get(`/api/organisation`)
       .then((res) => {
+        setIsBtnLoading(false);
+        setIsLoading(false);
         if (res.data.dmt_status == false) {
-          setIsLoading(false);
           window.location.href("/dashboard/not-available");
         }
       })
       .catch((err) => {
+        setIsBtnLoading(false);
         setIsLoading(false);
         console.log(err);
       });
@@ -210,10 +219,10 @@ const Dmt = () => {
           })
           .catch((err) => {
             if (err?.response?.status == 401) {
-                Cookies.remove("verified");
-                window.location.reload();
-                return;
-              }
+              Cookies.remove("verified");
+              window.location.reload();
+              return;
+            }
             console.log(err);
             if (err.response.status == 409) {
               Toast({
