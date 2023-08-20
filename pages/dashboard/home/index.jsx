@@ -100,6 +100,58 @@ const Index = () => {
       });
   }, []);
 
+  useEffect(()=>{
+    if(bbpsProvider == "eko"){
+      setIsLoading(true)
+      BackendAxios.get(`api/eko/bbps/operators/categories`)
+        .then((res) => {
+          setCategories(res.data.data);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err?.response?.status == 401) {
+            Cookies.remove("verified");
+            window.location.reload();
+            return;
+          }
+          Toast({
+            status: "warning",
+            title: "Error while fetching operators",
+            description:
+              err.response?.data?.message || err.response.data || err.message
+          });
+          setIsLoading(false);
+        });
+    }
+    if (bbpsProvider == "paysprint") {
+      setIsLoading(true)
+      BackendAxios.get(`api/${bbpsProvider}/bbps/operators/categories`)
+        .then((res) => {
+          setCategories(
+            Object.keys(res.data).map((item, key) => ({
+              operator_category_name: item,
+              status: 1,
+            }))
+          );
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          if (err?.response?.status == 401) {
+            Cookies.remove("verified");
+            window.location.reload();
+            return;
+          }
+          Toast({
+            status: "warning",
+            title: "Error while fetching operators",
+            description: err.response?.data?.message || err.response.data || err.message
+          });
+          setIsLoading(false);
+        });
+    }
+  },[bbpsProvider])
+
   return (
     <>
       <DashboardWrapper pageTitle={"Home"}>
