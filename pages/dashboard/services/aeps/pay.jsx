@@ -365,12 +365,12 @@ const Aeps = () => {
 
   useEffect(() => {
     if (aepsProvider == "paysprint") {
-      if(isNaN(localStorage.getItem("merchantId"))){
+      if(isNaN(localStorage.getItem("paysprintId"))){
         setIsRegistered(false)
         setShowRegistrationModal(true)
       }
       if (
-        parseInt(localStorage.getItem("merchantId")) > 10
+        parseInt(localStorage.getItem("paysprintId")) > 10
       ) {
         setIsRegistered(true);
         setShowRegistrationModal(false);
@@ -565,7 +565,7 @@ const Aeps = () => {
               title: "Registration Successful!",
               description: "Please do authentication now",
             });
-            localStorage.setItem("merchantId", res.data?.merchant_id);
+            localStorage.setItem("paysprintId", res.data?.merchant_id);
             setIsRegistered(true)
             setShowRegistrationModal(false);
             setShowAuthModal(true)
