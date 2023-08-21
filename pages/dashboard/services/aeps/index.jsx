@@ -1148,7 +1148,7 @@ const Aeps = () => {
       </Modal>
 
       {/* AePS Registration Modal */}
-      <Modal isOpen={showRegistrationModal}>
+      <Modal isOpen={showRegistrationModal} onClose={()=>setShowRegistrationModal(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Merchant Registration Required</ModalHeader>
@@ -1169,7 +1169,7 @@ const Aeps = () => {
       </Modal>
 
       {/* Daily Authentication Modal */}
-      <Modal isOpen={showAuthModal}>
+      <Modal isOpen={showAuthModal} onClose={()=>setShowAuthModal(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Merchant Authentication Required</ModalHeader>
